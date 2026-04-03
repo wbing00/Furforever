@@ -1,0 +1,104 @@
+/* pages/privacy/index.wxss */
+.privacy-page {
+  min-height: 100vh;
+  background: #FFF9F5;
+  display: flex;
+  flex-direction: column;
+}
+
+.privacy-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+  padding-bottom: 10rpx;
+  background: #FFF9F5;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-btn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #FFF1EE;
+  color: #FF9A8B;
+  font-size: 38rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-title {
+  font-size: 30rpx;
+  color: #5A5A5A;
+  font-weight: 600;
+}
+
+.nav-gap {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.privacy-header {
+  padding: 24rpx 32rpx 16rpx;
+  border-bottom: 2rpx solid #F3E4DE;
+  background: #FFF4EF;
+}
+
+.privacy-title {
+  display: block;
+  font-size: 40rpx;
+  color: #3A2E2A;
+  font-weight: 600;
+}
+
+.privacy-date {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #9B7E73;
+}
+
+.privacy-content {
+  height: calc(100vh - 280rpx);
+  padding: 20rpx 24rpx 0;
+  box-sizing: border-box;
+}
+
+.section {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 6rpx 18rpx rgba(200, 142, 120, 0.08);
+}
+
+.section-title {
+  display: block;
+  font-size: 30rpx;
+  color: #5E4037;
+  font-weight: 600;
+  margin-bottom: 14rpx;
+}
+
+.section-text {
+  display: block;
+  font-size: 26rpx;
+  line-height: 1.8;
+  color: #5F5F5F;
+}
+
+.bullet {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  line-height: 1.8;
+  color: #5F5F5F;
+}
+
+.privacy-footer-space {
+  height: 40rpx;
+}

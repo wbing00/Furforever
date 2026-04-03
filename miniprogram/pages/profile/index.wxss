@@ -1,0 +1,646 @@
+/* profile/index.wxss */
+
+.profile-container {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #FFF9F5;
+  padding-bottom: 40rpx;
+}
+
+/* 用户信息区域 */
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 2rpx;
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+  padding-bottom: 12rpx;
+  background: transparent;
+  border-radius: 0;
+  margin-bottom: 8rpx;
+  color: #2F2F2F;
+}
+
+/* 头像按钮 — 微信官方 open-type=chooseAvatar 要求是 button */
+.avatar-btn {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  margin-right: 0;
+  border: none;
+  line-height: 1;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-btn::after { border: none; }
+
+.user-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4rpx solid #FFD9D2;
+  box-shadow: 0 6rpx 18rpx rgba(255, 154, 139, 0.2);
+  background: #FFF7F4;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.user-info {
+  flex: 0 1 auto;
+  margin-left: 4rpx;
+}
+
+.user-name {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333333;
+  display: block;
+  margin-bottom: 2rpx;
+}
+
+.user-desc {
+  font-size: 24rpx;
+  color: #8A8A8A;
+  font-weight: 400;
+}
+
+.user-action {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #FFF1EE;
+  transition: all 0.3s ease;
+  margin-left: auto;
+}
+
+.user-action:active {
+  background: #FFE4DE;
+}
+
+.action-icon {
+  font-size: 32rpx;
+  color: #FF9A8B;
+}
+
+/* 宠物列表区域 */
+.pets-section {
+  padding: 0 32rpx 40rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+}
+
+.section-subtitle {
+  font-size: 24rpx;
+  color: #8A8A8A;
+  font-weight: 300;
+}
+
+.pets-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.pets-container {
+  display: inline-flex;
+  gap: 24rpx;
+}
+
+.pet-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200rpx;
+  padding: 32rpx 24rpx;
+  background: white;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.05);
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.pet-card.selected {
+  border-color: #333333;
+  background: #2F2F2F;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.22);
+}
+
+.pet-card.selected .pet-name,
+.pet-card.selected .pet-type,
+.pet-card.selected .status-item {
+  color: #FFFFFF;
+}
+
+.pet-card:active {
+  transform: scale(0.98);
+}
+
+.pet-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: #FF9A8B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+
+.pet-avatar-text {
+  font-size: 36rpx;
+  color: white;
+}
+
+.pet-name {
+  font-size: 28rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+  margin-bottom: 8rpx;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.pet-type {
+  font-size: 22rpx;
+  color: #8A8A8A;
+  margin-bottom: 16rpx;
+  font-weight: 300;
+}
+
+.pet-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  width: 100%;
+}
+
+.status-item {
+  font-size: 20rpx;
+  color: #B8B8B8;
+  font-weight: 300;
+  text-align: center;
+}
+
+/* 添加宠物卡片 */
+.add-card {
+  background: #F0F0F0;
+  border: 2rpx dashed #E0E0E0;
+  justify-content: center;
+}
+
+.add-icon {
+  font-size: 48rpx;
+  color: #FF9A8B;
+  margin-bottom: 16rpx;
+}
+
+.add-text {
+  font-size: 24rpx;
+  color: #8A8A8A;
+  font-weight: 300;
+}
+
+/* 空状态 */
+.empty-pets {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 0;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  color: #FF9A8B;
+  margin-bottom: 32rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+  margin-bottom: 16rpx;
+}
+
+.empty-subtitle {
+  font-size: 24rpx;
+  color: #8A8A8A;
+  font-weight: 300;
+  margin-bottom: 48rpx;
+  text-align: center;
+}
+
+.empty-btn {
+  padding: 20rpx 48rpx;
+  background: #FF9A8B;
+  color: white;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  font-weight: 300;
+  box-shadow: 0 8rpx 24rpx rgba(255, 154, 139, 0.3);
+  transition: all 0.3s ease;
+}
+
+.empty-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 4rpx 12rpx rgba(255, 154, 139, 0.3);
+}
+
+/* 功能菜单区域 */
+.menu-section {
+  padding: 0 32rpx 40rpx;
+}
+
+.menu-list {
+  background: white;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.05);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+  transition: all 0.3s ease;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:active {
+  background: #F0F0F0;
+}
+
+.menu-icon {
+  font-size: 36rpx;
+  margin-right: 24rpx;
+  width: 40rpx;
+  text-align: center;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: #8A8A8A;
+}
+
+/* 操作按钮区域 */
+.action-section {
+  padding: 0 32rpx;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 24rpx;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  transition: all 0.3s ease;
+}
+
+.logout-btn {
+  background: #F0F0F0;
+  color: #5A5A5A;
+}
+
+.logout-btn:active {
+  background: #E0E0E0;
+}
+
+.feedback-btn {
+  background: #FF9A8B;
+  color: white;
+}
+
+.feedback-btn:active {
+  background: #FF8A7A;
+}
+
+.btn-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.btn-text {
+  font-size: 28rpx;
+  font-weight: 300;
+}
+
+/* 添加宠物弹窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 100%;
+  max-height: 80vh;
+  background: white;
+  border-radius: 32rpx 32rpx 0 0;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40rpx 32rpx 24rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+}
+
+.modal-close {
+  font-size: 48rpx;
+  color: #8A8A8A;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.modal-close:active {
+  background: #F0F0F0;
+}
+
+.modal-body {
+  max-height: 60vh;
+  padding: 32rpx;
+}
+
+/* 表单样式 */
+.form-group {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+  margin-bottom: 16rpx;
+}
+
+.form-input {
+  width: 100%;
+  padding: 24rpx;
+  background: #F0F0F0;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #5A5A5A;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: #FF9A8B;
+  background: white;
+}
+
+.form-picker {
+  width: 100%;
+}
+
+.picker-view {
+  width: 100%;
+  padding: 24rpx;
+  background: #F0F0F0;
+  border-radius: 16rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 28rpx;
+  color: #5A5A5A;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.picker-view:active {
+  background: #E0E0E0;
+}
+
+.picker-text {
+  color: #5A5A5A;
+}
+
+.picker-placeholder {
+  color: #8A8A8A;
+}
+
+.picker-arrow {
+  color: #8A8A8A;
+  font-size: 24rpx;
+}
+
+/* 性别选项 */
+.gender-options {
+  display: flex;
+  gap: 24rpx;
+}
+
+.gender-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx;
+  background: #F0F0F0;
+  border-radius: 16rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.gender-option.selected {
+  background: #FFF9F5;
+  border-color: #FF9A8B;
+}
+
+.gender-option:active {
+  background: #E0E0E0;
+}
+
+.gender-icon {
+  font-size: 36rpx;
+  margin-bottom: 8rpx;
+}
+
+.gender-text {
+  font-size: 24rpx;
+  color: #5A5A5A;
+  font-weight: 300;
+}
+
+/* 删除弹窗 */
+.delete-modal {
+  max-height: 46vh;
+}
+
+.delete-body {
+  padding: 28rpx 32rpx 12rpx;
+}
+
+.delete-text {
+  display: block;
+  font-size: 28rpx;
+  line-height: 1.7;
+  color: #5A5A5A;
+}
+
+.delete-sub {
+  display: block;
+  margin-top: 16rpx;
+  color: #FF9A8B;
+  font-size: 24rpx;
+}
+
+.btn-danger {
+  background: #E74C3C;
+  color: #fff;
+}
+
+.btn-danger.disabled {
+  background: #F4B4AE;
+  color: #fff;
+}
+
+/* 编辑个人信息弹窗 */
+.edit-profile-body {
+  padding: 32rpx;
+}
+
+.edit-avatar-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.edit-avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4rpx solid #FF9A8B;
+}
+
+.edit-avatar-tip {
+  display: block;
+  text-align: center;
+  font-size: 22rpx;
+  color: #FF9A8B;
+  margin-top: 12rpx;
+}
+
+.modal-footer-profile {
+  display: flex;
+  padding: 24rpx 32rpx;
+  border-top: 2rpx solid #F0F0F0;
+  gap: 24rpx;
+}
+
+.btn {
+  flex: 1;
+  padding: 28rpx;
+  text-align: center;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 300;
+}
+
+.btn-cancel { background: #F0F0F0; color: #8A8A8A; }
+.btn-cancel:active { background: #E0E0E0; }
+.btn-primary { background: #FF9A8B; color: white; }
+.btn-primary:active { background: #FF8A7A; }
+
+/* 提交按钮 */
+.submit-btn {
+  width: 100%;
+  padding: 28rpx;
+  background: #FF9A8B;
+  color: white;
+  border-radius: 24rpx;
+  font-size: 32rpx;
+  font-weight: 300;
+  border: none;
+  margin-top: 40rpx;
+  box-shadow: 0 8rpx 24rpx rgba(255, 154, 139, 0.3);
+  transition: all 0.3s ease;
+}
+
+.submit-btn::after {
+  border: none;
+}
+
+.submit-btn-hover {
+  background: #FF8A7A;
+  transform: translateY(-2rpx);
+  box-shadow: 0 12rpx 32rpx rgba(255, 154, 139, 0.4);
+}

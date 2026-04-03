@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/splash/index",
+    "pages/auth/index",
+    "pages/home/index",
+    "pages/diary/index",
+    "pages/profile/index",
+    "pages/privacy/index"
+  ],
+  "window": {
+    "backgroundColor": "#FFF9F5",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FFF9F5",
+    "navigationBarTitleText": "宠物日常记录",
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "color": "#8A8A8A",
+    "selectedColor": "#FF9A8B",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "images/icons/home.png",
+        "selectedIconPath": "images/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/diary/index",
+        "text": "日记",
+        "iconPath": "images/icons/examples.png",
+        "selectedIconPath": "images/icons/examples-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "images/icons/usercenter.png",
+        "selectedIconPath": "images/icons/usercenter-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

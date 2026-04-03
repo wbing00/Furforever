@@ -1,0 +1,25 @@
+<!-- auth/index.wxml -->
+<view class="auth-container">
+  <view class="background"></view>
+  <view class="content">
+    <view class="icon-container">
+      <view class="paw-icon">🐾</view>
+    </view>
+    <view class="title">欢迎使用宠物日常记录</view>
+    <view class="subtitle">记录每一刻的温暖</view>
+    <view class="description">
+      登录后即可将宠物记录同步到云端，在多设备间访问。
+    </view>
+    <view class="auth-btn {{isLoading ? 'loading' : ''}}" bindtap="handleLogin">
+      <text wx:if="{{!isLoading}}">微信一键登录</text>
+      <text wx:else>登录中...</text>
+    </view>
+    <view class="skip-btn" bindtap="skipAuth">暂不登录，先看看</view>
+    <view class="agreement">
+      登录即表示您同意
+      <text class="link">《用户协议》</text>
+      和
+      <text class="link">《隐私政策》</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,53 @@
+<!-- pages/privacy/index.wxml -->
+<view class="privacy-page">
+  <view class="privacy-navbar" style="padding-top:{{navTop}}px;padding-right:{{navRightPadding}}rpx">
+    <view class="back-btn" bindtap="goBack">‹</view>
+    <text class="nav-title">隐私政策</text>
+    <view class="nav-gap"></view>
+  </view>
+
+  <view class="privacy-header">
+    <text class="privacy-title">FurForever 隐私政策</text>
+    <text class="privacy-date">更新日期：{{updatedAt}}</text>
+  </view>
+
+  <scroll-view class="privacy-content" scroll-y>
+    <view class="section">
+      <text class="section-title">1. 我们收集的信息</text>
+      <text class="section-text">为实现核心功能，我们会在获得授权后收集以下信息：</text>
+      <text class="bullet">• 微信昵称、头像（用于个人主页展示）</text>
+      <text class="bullet">• 宠物信息（如名称、类型、生日、体重、日记记录等）</text>
+      <text class="bullet">• 账号标识信息（openid，用于识别账号并隔离数据）</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">2. 信息使用目的</text>
+      <text class="section-text">我们仅在以下范围内使用您的信息：</text>
+      <text class="bullet">• 为您提供宠物档案、日常记录、日记管理等服务</text>
+      <text class="bullet">• 在您的设备与云端之间同步数据</text>
+      <text class="bullet">• 保障账号安全与服务稳定运行</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">3. 信息存储与保护</text>
+      <text class="section-text">您的数据存储在微信云开发数据库中。我们采取访问控制等措施保护数据安全，未经您的授权不会向无关第三方披露。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">4. 信息共享说明</text>
+      <text class="section-text">除法律法规要求或获得您明确同意外，我们不会向第三方出售、出租或共享您的个人信息。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">5. 您的权利</text>
+      <text class="section-text">您可以在小程序内修改昵称、头像、宠物信息，并可删除宠物资料与相关记录。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">6. 联系我们</text>
+      <text class="section-text">如您对本政策有疑问，可通过小程序内“反馈建议”与我们联系。</text>
+    </view>
+
+    <view class="privacy-footer-space"></view>
+  </scroll-view>
+</view>

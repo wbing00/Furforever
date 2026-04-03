@@ -1,0 +1,23 @@
+<!-- splash/index.wxml -->
+<view class="splash-container">
+  <!-- 背景渐变 -->
+  <view class="background-gradient"></view>
+  
+  <!-- 主要内容 -->
+  <view class="content">
+    <!-- 爪子印Logo：添加bindtap点击事件，实现点击进入 -->
+    <image class="logo-img" src="/imagesByMyself/paw.png" bindtap="enterApp"></image>
+    
+    <!-- 应用名称 -->
+    <view class="app-name">FurForever</view>
+    <view class="app-subtitle">灰暗的心  竟然开始变鲜活  你的存在  治愈我</view>
+    
+    <!-- 加载提示：仅加载中显示 -->
+    <view class="loading-text" wx:if="{{isLoading}}">加载中...</view>
+  </view>
+  
+  <!-- 底部版权信息 -->
+  <view class="footer">
+    <text>© 2026 FurForever by w.bing</text>
+  </view>
+</view>

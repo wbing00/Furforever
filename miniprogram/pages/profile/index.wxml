@@ -1,0 +1,314 @@
+<!-- profile/index.wxml -->
+<view class="profile-container">
+  <!-- 用户信息区域 -->
+  <view class="user-section" style="padding-top:{{navTop}}px;padding-right:{{navRightPadding}}rpx">
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <view class="user-avatar">
+        <image class="avatar-image" src="{{userInfo.avatarUrl || '../../images/icons/avatar.png'}}" mode="aspectFit"></image>
+    </view>
+    </button>
+    <view class="user-info" bindtap="viewUserInfo">
+      <text class="user-name">{{userInfo.nickName || '点击设置昵称'}}</text>
+      <text class="user-desc">超级铲屎官</text>
+    </view>
+    <view class="user-action" bindtap="viewUserInfo">
+      <text class="action-icon">›</text>
+    </view>
+  </view>
+
+  <!-- 宠物列表区域 -->
+  <view class="pets-section">
+    <view class="section-header">
+      <text class="section-title">我的宠物</text>
+      <text class="section-subtitle">My Pets</text>
+    </view>
+    
+    <scroll-view class="pets-scroll" scroll-x wx:if="{{pets.length > 0}}">
+      <view class="pets-container">
+        <view 
+          class="pet-card {{currentPet && pet._id === currentPet._id ? 'selected' : ''}}" 
+          wx:for="{{pets}}" 
+          wx:for-item="pet"
+          wx:key="_id"
+          data-index="{{index}}"
+          data-pet="{{pet}}"
+          bindtap="selectPet"
+          bindlongpress="onPetLongPress"
+        >
+          <view class="pet-avatar">
+            <text class="pet-avatar-text" wx:if="{{pet.avatar}}">{{pet.avatar}}</text>
+            <text class="pet-avatar-text" wx:else>🐾</text>
+          </view>
+          <text class="pet-name">{{pet.name}}</text>
+          <text class="pet-type">{{pet.type}}</text>
+          <view class="pet-status">
+            <text class="status-item">🎂 {{pet.age || '未知'}}</text>
+            <text class="status-item">⚖️ {{pet.weight || '未知'}}kg</text>
+          </view>
+        </view>
+        
+        <!-- 添加宠物卡片 -->
+        <view class="pet-card add-card" bindtap="addPet">
+          <view class="add-icon">+</view>
+          <text class="add-text">添加宠物</text>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <!-- 空状态 -->
+    <view class="empty-pets" wx:else>
+      <view class="empty-icon">🐾</view>
+      <text class="empty-title">还没有宠物</text>
+      <text class="empty-subtitle">添加您的第一个宠物伙伴</text>
+      <view class="empty-btn" bindtap="addPet">
+        添加宠物
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能菜单区域 -->
+  <view class="menu-section">
+    <view class="section-header">
+      <text class="section-title">功能设置</text>
+      <text class="section-subtitle">Settings</text>
+    </view>
+    
+    <view class="menu-list">
+      <!-- 数据统计 -->
+      <view class="menu-item" bindtap="viewStatistics">
+        <view class="menu-icon">📊</view>
+        <text class="menu-text">数据统计</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      
+      <!-- 提醒设置 -->
+      <view class="menu-item" bindtap="viewReminders">
+        <view class="menu-icon">⏰</view>
+        <text class="menu-text">提醒设置</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      
+      <!-- 数据备份 -->
+      <view class="menu-item" bindtap="backupData">
+        <view class="menu-icon">💾</view>
+        <text class="menu-text">数据备份</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      
+      <!-- 使用帮助 -->
+      <view class="menu-item" bindtap="viewHelp">
+        <view class="menu-icon">❓</view>
+        <text class="menu-text">使用帮助</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      
+      <!-- 隐私政策 -->
+      <view class="menu-item" bindtap="viewPrivacyPolicy">
+        <view class="menu-icon">🔒</view>
+        <text class="menu-text">隐私政策</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      
+      <!-- 关于我们 -->
+      <view class="menu-item" bindtap="viewAbout">
+        <view class="menu-icon">ℹ️</view>
+        <text class="menu-text">关于我们</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮区域 -->
+  <view class="action-section">
+    <view class="action-buttons">
+      <view class="action-btn logout-btn" bindtap="logout">
+        <text class="btn-icon">🚪</text>
+        <text class="btn-text">退出登录</text>
+      </view>
+      
+      <view class="action-btn feedback-btn" bindtap="giveFeedback">
+        <text class="btn-icon">💬</text>
+        <text class="btn-text">反馈建议</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 删除宠物确认弹窗 -->
+  <view class="modal-overlay" wx:if="{{showDeletePetModal}}" bindtap="hideDeletePetModal">
+    <view class="modal-content delete-modal" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">删除宠物</text>
+        <text class="modal-close" bindtap="hideDeletePetModal">×</text>
+      </view>
+      <view class="modal-body delete-body">
+        <text class="delete-text">确定要删除宠物信息吗？删除后无法恢复，请仔细考虑！</text>
+        <text class="delete-sub" wx:if="{{deletePetTarget}}">当前将删除：{{deletePetTarget.name}}</text>
+      </view>
+      <view class="modal-footer-profile">
+        <view class="btn btn-cancel" bindtap="hideDeletePetModal">取消</view>
+        <view class="btn btn-danger {{deleteCountdown > 0 ? 'disabled' : ''}}" bindtap="confirmDeletePet">
+          {{deleteCountdown > 0 ? ('确认删除(' + deleteCountdown + 's)') : '确认删除'}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 编辑个人信息弹窗 -->
+  <view class="modal-overlay" wx:if="{{showEditProfile}}" bindtap="hideEditProfile">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">编辑个人信息</text>
+        <text class="modal-close" bindtap="hideEditProfile">×</text>
+      </view>
+      <view class="modal-body edit-profile-body">
+        <view class="edit-avatar-row">
+          <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+            <view class="edit-avatar">
+              <image class="avatar-image" src="{{userInfo.avatarUrl || '../../images/icons/avatar.png'}}" mode="aspectFill"></image>
+            </view>
+            <text class="edit-avatar-tip">点击更换头像</text>
+          </button>
+        </view>
+        <view class="form-group">
+          <text class="form-label">昵称</text>
+          <input
+            class="form-input"
+            type="nickname"
+            placeholder="请输入昵称"
+            value="{{editNickName}}"
+            bindinput="onNickNameInput"
+            maxlength="12"
+          />
+        </view>
+      </view>
+      <view class="modal-footer-profile">
+        <view class="btn btn-cancel" bindtap="hideEditProfile">取消</view>
+        <view class="btn btn-primary" bindtap="saveProfile">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加宠物弹窗 -->
+  <view class="modal-overlay" wx:if="{{showAddPetModal}}" bindtap="hideAddPetModal">
+    <view class="modal-content add-pet-modal" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">添加新宠物</text>
+        <text class="modal-close" bindtap="hideAddPetModal">×</text>
+      </view>
+      
+      <scroll-view class="modal-body" scroll-y>
+        <form bindsubmit="submitPetForm">
+          <!-- 宠物名称 -->
+          <view class="form-group">
+            <text class="form-label">宠物名称</text>
+            <input 
+              class="form-input" 
+              name="name" 
+              placeholder="请输入宠物名称" 
+              value="{{petForm.name}}"
+              maxlength="10"
+            />
+          </view>
+          
+          <!-- 宠物类型 -->
+          <view class="form-group">
+            <text class="form-label">宠物类型</text>
+            <picker 
+              class="form-picker" 
+              name="type" 
+              range="{{petTypes}}" 
+              value="{{petForm.typeIndex}}" 
+              bindchange="onTypeChange"
+            >
+              <view class="picker-view">
+                <text class="picker-text" wx:if="{{petForm.type}}">{{petForm.type}}</text>
+                <text class="picker-placeholder" wx:else>请选择宠物类型</text>
+                <text class="picker-arrow">▼</text>
+              </view>
+            </picker>
+          </view>
+          
+          <!-- 宠物品种 -->
+          <view class="form-group">
+            <text class="form-label">品种</text>
+            <input 
+              class="form-input" 
+              name="breed" 
+              placeholder="请输入品种（可选）" 
+              value="{{petForm.breed}}"
+              maxlength="20"
+            />
+          </view>
+          
+          <!-- 性别 -->
+          <view class="form-group">
+            <text class="form-label">性别</text>
+            <view class="gender-options">
+              <view 
+                class="gender-option {{petForm.gender === 'male' ? 'selected' : ''}}" 
+                data-gender="male"
+                bindtap="selectGender"
+              >
+                <text class="gender-icon">♂</text>
+                <text class="gender-text">男孩</text>
+              </view>
+              <view 
+                class="gender-option {{petForm.gender === 'female' ? 'selected' : ''}}" 
+                data-gender="female"
+                bindtap="selectGender"
+              >
+                <text class="gender-icon">♀</text>
+                <text class="gender-text">女孩</text>
+              </view>
+              <view 
+                class="gender-option {{petForm.gender === 'unknown' ? 'selected' : ''}}" 
+                data-gender="unknown"
+                bindtap="selectGender"
+              >
+                <text class="gender-icon">?</text>
+                <text class="gender-text">未知</text>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 生日 -->
+          <view class="form-group">
+            <text class="form-label">生日</text>
+            <picker 
+              class="form-picker" 
+              name="birthday" 
+              mode="date" 
+              value="{{petForm.birthday}}" 
+              start="2010-01-01"
+              end="{{today}}"
+              bindchange="onBirthdayChange"
+            >
+              <view class="picker-view">
+                <text class="picker-text" wx:if="{{petForm.birthday}}">{{petForm.birthday}}</text>
+                <text class="picker-placeholder" wx:else>请选择生日（可选）</text>
+                <text class="picker-arrow">▼</text>
+              </view>
+            </picker>
+          </view>
+          
+          <!-- 体重 -->
+          <view class="form-group">
+            <text class="form-label">体重 (kg)</text>
+            <input 
+              class="form-input" 
+              name="weight" 
+              type="digit" 
+              placeholder="请输入体重（可选）" 
+              value="{{petForm.weight}}"
+            />
+          </view>
+          
+          <!-- 提交按钮 -->
+          <button class="submit-btn" form-type="submit" hover-class="submit-btn-hover">
+            添加宠物
+          </button>
+        </form>
+      </scroll-view>
+    </view>
+  </view>
+</view>

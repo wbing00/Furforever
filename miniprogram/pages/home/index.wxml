@@ -1,0 +1,136 @@
+<!-- home/index.wxml -->
+<view class="home-container">
+  <view class="navbar" style="padding-top:{{navTop}}px;padding-right:{{navRightPadding}}rpx">
+    <view class="navbar-left"><text class="navbar-title">日常记录</text></view>
+    <view class="navbar-right"><view class="navbar-icon" bindtap="switchPet"><text class="icon">🐾</text><text class="pet-name" wx:if="{{currentPet}}">{{currentPet.name}}</text><text class="pet-name" wx:else>选择宠物</text></view></view>
+  </view>
+  <scroll-view class="main-content" scroll-y>
+    <view class="date-section">
+      <view class="calendar-header">
+        <view class="cal-nav-btn" bindtap="prevMonth"><text>‹</text></view>
+        <text class="cal-month-title">{{currentMonth}}</text>
+        <view class="cal-nav-btn" bindtap="nextMonth"><text>›</text></view>
+        </view>
+      <view class="cal-weekdays">
+        <view class="cal-weekday"><text>日</text></view>
+        <view class="cal-weekday"><text>一</text></view>
+        <view class="cal-weekday"><text>二</text></view>
+        <view class="cal-weekday"><text>三</text></view>
+        <view class="cal-weekday"><text>四</text></view>
+        <view class="cal-weekday"><text>五</text></view>
+        <view class="cal-weekday"><text>六</text></view>
+      </view>
+      <view class="cal-grid">
+        <view class="cal-cell {{item.isOtherMonth?'other':''}} {{item.isSelected?'selected':''}} {{item.isToday?'today':''}} {{item.hasRecord?'has-record':''}}" wx:for="{{calendarDays}}" wx:key="index" data-date="{{item.date}}" bindtap="selectDate">
+          <text class="cal-day-num">{{item.day}}</text>
+          <view class="cal-dot" wx:if="{{item.hasRecord&&!item.isOtherMonth}}"></view>
+          </view>
+        </view>
+      <view class="selected-date-bar"><text class="selected-date-text">{{currentDate}}</text></view>
+    </view>
+
+    <view class="ai-insights-section">
+      <view class="ai-summary-card" bindtap="openSummaryModal">
+        <view class="ai-summary-head">
+          <text class="ai-badge">AI</text>
+          <text class="ai-title">今日健康摘要</text>
+          <text class="ai-source-tag">来源：{{aiSummarySource==='ai'?'AI':'规则'}}</text>
+        </view>
+        <text class="ai-summary-text">{{aiDailySummary}}</text>
+      </view>
+      <view class="ai-alert-card">
+        <view class="ai-alert-head">
+          <text class="ai-alert-title">异常关注提醒</text>
+          <text class="ai-source-tag">来源：{{alertSource==='ai'?'AI':(alertSource==='ai+rule'?'AI+规则':'规则')}}</text>
+        </view>
+        <view wx:if="{{dailyAlerts.length > 0}}">
+          <view class="ai-alert-item" wx:for="{{dailyAlerts}}" wx:key="index">
+            <text class="ai-alert-dot">•</text>
+            <text class="ai-alert-text">{{item}}</text>
+          </view>
+        </view>
+        <text class="ai-alert-normal" wx:else>您的宝贝一切正常哦~</text>
+      </view>
+    </view>
+
+    <view class="records-section">
+      <view class="module-section"><view class="module-header"><text class="module-title">日常记录</text><text class="module-subtitle">Daily Routine</text></view><view class="module-divider"></view><view class="cards-grid">
+        <view class="card-item" bindtap="recordFeeding"><view class="card-icon">🍽️</view><text class="card-title">饮食</text><text class="card-subtitle">{{recordSummaries.feeding}}</text></view>
+        <view class="card-item" bindtap="recordHydration"><view class="card-icon">💧</view><text class="card-title">饮水</text><text class="card-subtitle">{{recordSummaries.hydration}}</text></view>
+        <view class="card-item" bindtap="recordExcretion"><view class="card-icon">🚽</view><text class="card-title">排泏</text><text class="card-subtitle">{{recordSummaries.excretion}}</text></view>
+        <view class="card-item" bindtap="recordActivity"><view class="card-icon">🏃</view><text class="card-title">运动</text><text class="card-subtitle">{{recordSummaries.activity}}</text></view>
+        <view class="card-item" bindtap="recordSleep"><view class="card-icon">😴</view><text class="card-title">睡眠</text><text class="card-subtitle">{{recordSummaries.sleep}}</text></view>
+        <view class="card-item" bindtap="recordMood"><view class="card-icon">😊</view><text class="card-title">情绪</text><text class="card-subtitle">{{recordSummaries.mood}}</text></view>
+      </view></view>
+      <view class="module-section"><view class="module-header"><text class="module-title">健康管理</text><text class="module-subtitle">Medical &amp; Care</text></view><view class="module-divider"></view><view class="cards-grid">
+        <view class="card-item" bindtap="recordVaccine"><view class="card-icon">💉</view><text class="card-title">疫苗</text><text class="card-subtitle">预防医疗</text></view>
+        <view class="card-item" bindtap="recordDeworming"><view class="card-icon">🐛</view><text class="card-title">驱虫</text><text class="card-subtitle">预防医疗</text></view>
+        <view class="card-item" bindtap="recordGrooming"><view class="card-icon">🛁</view><text class="card-title">护理</text><text class="card-subtitle">清洁美容</text></view>
+        <view class="card-item" bindtap="recordMedical"><view class="card-icon">🏥</view><text class="card-title">医疗</text><text class="card-subtitle">就诊用药</text></view>
+      </view></view>
+    </view>
+    <view class="bottom-space"></view>
+  </scroll-view>
+  <view class="modal-overlay" wx:if="{{showSummaryModal}}" bindtap="closeSummaryModal">
+    <view class="modal-content summary-detail-modal" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">完整健康摘要</text>
+        <text class="modal-close" bindtap="closeSummaryModal">×</text>
+      </view>
+      <view class="modal-body">
+        <text class="summary-detail-text">{{aiDailySummary}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="modal-overlay" wx:if="{{showRecordModal}}" bindtap="hideRecordModal"><view class="modal-content record-modal" catchtap="stopPropagation"><view class="modal-header"><text class="modal-title">{{recordModalTitle}}</text><text class="modal-close" bindtap="hideRecordModal">×</text></view><view class="modal-summary" wx:if="{{recordModalSummary}}"><text class="summary-text">{{recordModalSummary}}</text></view><scroll-view class="modal-body" scroll-y>
+  <view wx:if="{{recordModalType==='feeding'}}"><view class="form-section"><text class="form-label">食物类型</text><view class="options-grid">
+  <view class="option-item {{feedingData.type==='主粮'?'selected':''}}" data-type="主粮" bindtap="selectFeedingType"><text>主粮</text></view>
+  <view class="option-item {{feedingData.type==='零食'?'selected':''}}" data-type="零食" bindtap="selectFeedingType"><text>零食</text></view>
+  <view class="option-item {{feedingData.type==='罐头'?'selected':''}}" data-type="罐头" bindtap="selectFeedingType"><text>罐头</text></view>
+  <view class="option-item {{feedingData.type==='加餐'?'selected':''}}" data-type="加餐" bindtap="selectFeedingType"><text>加餐</text></view>
+  </view></view><view class="form-section"><text class="form-label">分量</text><view class="input-with-unit"><input class="form-input" type="number" placeholder="请输入" value="{{feedingData.amount}}" bindinput="onFeedingAmountInput"/>
+  <view class="unit-option {{feedingData.unit==='克'?'selected':''}}" data-unit="克" bindtap="selectFeedingUnit"><text>克</text></view>
+  <view class="unit-option {{feedingData.unit==='碗'?'selected':''}}" data-unit="碗" bindtap="selectFeedingUnit"><text>碗</text></view>
+  </view></view></view>
+  <view wx:if="{{recordModalType==='hydration'}}"><view class="form-section"><text class="form-label">饮水状态</text><view class="options-grid">
+  <view class="option-item {{hydrationData.status==='正常'?'selected':''}}" data-status="正常" bindtap="selectHydrationStatus"><text>正常</text></view>
+  <view class="option-item {{hydrationData.status==='偏多'?'selected':''}}" data-status="偏多" bindtap="selectHydrationStatus"><text>偏多</text></view>
+  <view class="option-item {{hydrationData.status==='偏少'?'selected':''}}" data-status="偏少" bindtap="selectHydrationStatus"><text>偏少</text></view>
+  <view class="option-item {{hydrationData.status==='未饮水'?'selected':''}}" data-status="未饮水" bindtap="selectHydrationStatus"><text>未饮水</text></view>
+  </view></view></view>
+  <view wx:if="{{recordModalType==='excretion'}}"><view class="form-section"><text class="form-label">便便状态</text><view class="options-grid">
+  <view class="option-item {{excretionData.poopStatus==='正常'?'selected':''}}" data-status="正常" bindtap="selectPoopStatus"><text>正常</text></view>
+  <view class="option-item {{excretionData.poopStatus==='拉稀'?'selected':''}}" data-status="拉稀" bindtap="selectPoopStatus"><text>拉稀</text></view>
+  <view class="option-item {{excretionData.poopStatus==='便秘'?'selected':''}}" data-status="便秘" bindtap="selectPoopStatus"><text>便秘</text></view>
+  <view class="option-item {{excretionData.poopStatus==='带血'?'selected':''}}" data-status="带血" bindtap="selectPoopStatus"><text>带血</text></view>
+  </view></view><view class="form-section"><text class="form-label">尿尿状态</text><view class="options-grid">
+  <view class="option-item {{excretionData.peeStatus==='正常'?'selected':''}}" data-status="正常" bindtap="selectPeeStatus"><text>正常</text></view>
+  <view class="option-item {{excretionData.peeStatus==='频繁'?'selected':''}}" data-status="频繁" bindtap="selectPeeStatus"><text>频繁</text></view>
+  <view class="option-item {{excretionData.peeStatus==='闭尿'?'selected':''}}" data-status="闭尿" bindtap="selectPeeStatus"><text>闭尿</text></view>
+  <view class="option-item {{excretionData.peeStatus==='乱尿'?'selected':''}}" data-status="乱尿" bindtap="selectPeeStatus"><text>乱尿</text></view>
+  </view></view></view>
+  <view wx:if="{{recordModalType==='activity'}}"><view class="form-section"><text class="form-label">运动时长（分钟）</text><input class="form-input" type="number" placeholder="请输入" value="{{activityData.duration}}" bindinput="onActivityDurationInput"/></view><view class="form-section"><text class="form-label">运动强度</text><view class="options-grid">
+  <view class="option-item {{activityData.intensity==='疯狂跑跳'?'selected':''}}" data-intensity="疯狂跑跳" bindtap="selectActivityIntensity"><text>疯狂跑跳</text></view>
+  <view class="option-item {{activityData.intensity==='散步'?'selected':''}}" data-intensity="散步" bindtap="selectActivityIntensity"><text>散步</text></view>
+  <view class="option-item {{activityData.intensity==='社交'?'selected':''}}" data-intensity="社交" bindtap="selectActivityIntensity"><text>社交</text></view>
+  </view></view></view>
+  <view wx:if="{{recordModalType==='sleep'}}"><view class="form-section"><text class="form-label">睡眠时长（小时）</text><input class="form-input" type="number" placeholder="请输入" value="{{sleepData.duration}}" bindinput="onSleepDurationInput"/></view><view class="form-section"><text class="form-label">睡眠表现</text><view class="options-grid">
+  <view class="option-item {{sleepData.quality==='深睡'?'selected':''}}" data-quality="深睡" bindtap="selectSleepQuality"><text>深睡</text></view>
+  <view class="option-item {{sleepData.quality==='易惊醒'?'selected':''}}" data-quality="易惊醒" bindtap="selectSleepQuality"><text>易惊醒</text></view>
+  <view class="option-item {{sleepData.quality==='打呼'?'selected':''}}" data-quality="打呼" bindtap="selectSleepQuality"><text>打呼</text></view>
+  </view></view></view>
+  <view wx:if="{{recordModalType==='mood'}}"><view class="form-section"><text class="form-label">情绪状态</text><view class="options-grid">
+  <view class="option-item {{moodData.mood==='开心'?'selected':''}}" data-mood="开心" bindtap="selectMood"><text>😊 开心</text></view>
+  <view class="option-item {{moodData.mood==='好奇'?'selected':''}}" data-mood="好奇" bindtap="selectMood"><text>🤔 好奇</text></view>
+  <view class="option-item {{moodData.mood==='愤怒'?'selected':''}}" data-mood="愤怒" bindtap="selectMood"><text>😠 愤怒</text></view>
+  <view class="option-item {{moodData.mood==='焦虑'?'selected':''}}" data-mood="焦虑" bindtap="selectMood"><text>😰 焦虑</text></view>
+  <view class="option-item {{moodData.mood==='胆小'?'selected':''}}" data-mood="胆小" bindtap="selectMood"><text>😨 胆小</text></view>
+  <view class="option-item {{moodData.mood==='Emo'?'selected':''}}" data-mood="Emo" bindtap="selectMood"><text>😔 Emo</text></view>
+  </view></view></view>
+  </scroll-view><view class="modal-footer"><view class="btn btn-cancel" bindtap="hideRecordModal">取消</view><view class="btn btn-primary" bindtap="saveRecord">保存</view></view></view></view>
+  <view class="modal-overlay" wx:if="{{showPetModal}}" bindtap="hidePetModal"><view class="modal-content" catchtap="stopPropagation"><view class="modal-header"><text class="modal-title">选择宠物</text><text class="modal-close" bindtap="hidePetModal">×</text></view><scroll-view class="modal-body" scroll-y>
+  <view class="pet-item {{currentPet&&pet._id===currentPet._id?'selected':''}}" wx:for="{{pets}}" wx:for-item="pet" wx:key="_id" data-index="{{index}}" data-pet="{{pet}}" bindtap="selectPet"><view class="pet-avatar"><text class="pet-avatar-text" wx:if="{{pet.avatar}}">{{pet.avatar}}</text><text class="pet-avatar-text" wx:else>🐾</text></view><view class="pet-info"><text class="pet-name">{{pet.name}}</text><text class="pet-details">{{pet.type}}·{{pet.breed}}</text></view><text class="pet-check" wx:if="{{currentPet&&pet._id===currentPet._id}}">✓</text></view>
+  <view class="add-pet-btn" bindtap="addNewPet"><text class="add-icon">+</text><text class="add-text">添加新宠物</text></view>
+  </scroll-view></view></view>
+</view>

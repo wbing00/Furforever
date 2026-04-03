@@ -1,0 +1,47 @@
+<!-- diary/index.wxml -->
+<view class="diary-container">
+  <view class="navbar" style="padding-top:{{navTop}}px;padding-right:{{navRightPadding}}rpx"><view class="navbar-left"><text class="navbar-title">宠物日记</text></view>
+    <view class="navbar-right"><view class="navbar-icon" bindtap="switchPet"><text class="icon">🐾</text><text class="pet-name" wx:if="{{currentPet}}">{{currentPet.name}}</text><text class="pet-name" wx:else>选择宠物</text></view>
+    <view class="navbar-icon" bindtap="createDiary"><text class="icon">✏️</text><text class="icon-text">写日记</text></view></view></view>
+  <scroll-view class="main-content" scroll-y wx:if="{{diaries.length>0}}">
+    <view class="timeline">
+      <view class="timeline-item" wx:for="{{diaries}}" wx:key="_id"><view class="timeline-node"><view class="node-dot"></view><view class="node-line"></view></view>
+        <view class="diary-card"><view class="diary-date"><text class="date-day">{{item.displayDate.day}}</text><text class="date-month">{{item.displayDate.month}}</text><text class="date-week">{{item.displayDate.week}}</text></view>
+          <view class="diary-content"><view class="diary-header"><text class="diary-title">{{item.title}}</text><view class="diary-mood"><text class="mood-icon">{{item.moodIcon}}</text><text class="mood-text">{{item.mood}}</text></view></view>
+          <text class="diary-text">{{item.contentPreview}}</text>
+          <view class="diary-images" wx:if="{{item.images&&item.images.length>0}}"><scroll-view class="images-scroll" scroll-x><view class="images-container">
+            <image class="diary-image" wx:for="{{item.images}}" wx:key="index" wx:for-item="img" src="{{img}}" mode="aspectFill" data-index="{{index}}" data-images="{{item.images}}" bindtap="previewImage"/>
+          </view></scroll-view></view>
+          <view class="diary-actions"><text class="action-btn" bindtap="deleteDiary" data-id="{{item._id}}">删除</text></view>
+        </view></view></view>
+    </view>
+    <view class="load-more" wx:if="{{hasMore}}"><text class="load-text" bindtap="loadMore">加载更多</text></view>
+    <view class="bottom-space"></view></scroll-view>
+  <view class="empty-state" wx:else><view class="empty-icon">📝</view><text class="empty-title">还没有日记记录</text><text class="empty-subtitle">记录宠物的成长点滴</text><view class="empty-btn" bindtap="createDiary">写第一篇日记</view></view>
+  <view class="modal-overlay" wx:if="{{showDiaryModal}}" bindtap="hideDiaryModal"><view class="modal-content diary-modal" catchtap="stopPropagation">
+    <view class="modal-header"><text class="modal-title">写日记</text><text class="modal-close" bindtap="hideDiaryModal">×</text></view>
+    <scroll-view class="modal-body" scroll-y>
+      <view class="form-section"><text class="form-label">日记标题</text><input class="form-input diary-title-input" placeholder="给今天起个标题吧（可选）" value="{{diaryForm.title}}" bindinput="onDiaryTitleInput" maxlength="30"/></view>
+      <view class="form-section"><text class="form-label">日记内容 *</text><textarea class="diary-textarea" placeholder="记录宠物今天的故事..." value="{{diaryForm.content}}" bindinput="onDiaryContentInput" maxlength="2000" auto-height/></view>
+      <view class="form-section"><text class="form-label">今日心情</text><view class="mood-grid">
+        <view class="mood-item {{diaryForm.mood==='开心'?'selected':''}}" data-mood="开心" bindtap="selectDiaryMood"><text>😊 开心</text></view>
+        <view class="mood-item {{diaryForm.mood==='好奇'?'selected':''}}" data-mood="好奇" bindtap="selectDiaryMood"><text>🤔 好奇</text></view>
+        <view class="mood-item {{diaryForm.mood==='愤怒'?'selected':''}}" data-mood="愤怒" bindtap="selectDiaryMood"><text>😠 愤怒</text></view>
+        <view class="mood-item {{diaryForm.mood==='焦虑'?'selected':''}}" data-mood="焦虑" bindtap="selectDiaryMood"><text>😰 焦虑</text></view>
+        <view class="mood-item {{diaryForm.mood==='胆小'?'selected':''}}" data-mood="胆小" bindtap="selectDiaryMood"><text>😨 胆小</text></view>
+        <view class="mood-item {{diaryForm.mood==='Emo'?'selected':''}}" data-mood="Emo" bindtap="selectDiaryMood"><text>😔 Emo</text></view>
+      </view></view>
+      <view class="form-section"><text class="form-label">上传照片</text><view class="image-picker">
+        <view class="image-thumb" wx:for="{{diaryForm.images}}" wx:key="index"><image class="thumb-img" src="{{item}}" mode="aspectFill" data-index="{{index}}" bindtap="previewDiaryImage"/><view class="thumb-delete" data-index="{{index}}" bindtap="removeImage">×</view></view>
+        <view class="image-add-btn" bindtap="chooseImages" wx:if="{{diaryForm.images.length<9}}"><text class="add-icon">+</text><text class="add-label">添加图片</text></view>
+      </view></view>
+    </scroll-view>
+    <view class="modal-footer"><view class="btn btn-cancel" bindtap="hideDiaryModal">取消</view><view class="btn btn-primary" bindtap="saveDiary">保存日记</view></view>
+  </view></view>
+  <view class="modal-overlay" wx:if="{{showPetModal}}" bindtap="hidePetModal"><view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header"><text class="modal-title">选择宠物</text><text class="modal-close" bindtap="hidePetModal">×</text></view>
+    <scroll-view class="modal-body" scroll-y>
+      <view class="pet-item {{currentPet&&pet._id===currentPet._id?'selected':''}}" wx:for="{{pets}}" wx:for-item="pet" wx:key="_id" data-index="{{index}}" data-pet="{{pet}}" bindtap="selectPet"><view class="pet-avatar"><text class="pet-avatar-text" wx:if="{{pet.avatar}}">{{pet.avatar}}</text><text class="pet-avatar-text" wx:else>🐾</text></view><view class="pet-info"><text class="pet-name">{{pet.name}}</text><text class="pet-details">{{pet.type}} · {{pet.breed}}</text></view><text class="pet-check" wx:if="{{currentPet&&pet._id===currentPet._id}}">✓</text></view>
+      <view class="add-pet-btn" bindtap="addNewPet"><text class="add-icon">+</text><text class="add-text">添加新宠物</text></view>
+    </scroll-view></view></view>
+</view>

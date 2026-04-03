@@ -1,0 +1,149 @@
+/* auth/index.wxss */
+
+.auth-container {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: border-box;
+}
+
+/* 背景 */
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #FFF9F5 0%, #FFE8E3 50%, #FFD6CE 100%);
+  z-index: -1;
+}
+
+/* 内容区域 */
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 40rpx;
+  width: 100%;
+  max-width: 600rpx;
+}
+
+/* 图标 */
+.icon-container {
+  margin-bottom: 60rpx;
+}
+
+.paw-icon {
+  font-size: 120rpx;
+  color: #FF9A8B;
+}
+
+/* 标题 */
+.title {
+  font-size: 44rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+  margin-bottom: 16rpx;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #8A8A8A;
+  margin-bottom: 60rpx;
+  font-weight: 300;
+  text-align: center;
+}
+
+/* 说明文字 */
+.description {
+  font-size: 28rpx;
+  color: #8A8A8A;
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 80rpx;
+  padding: 0 20rpx;
+}
+
+/* 授权按钮 */
+.auth-btn {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  background: #FF9A8B;
+  color: white;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: 300;
+  border: none;
+  margin-bottom: 40rpx;
+  box-shadow: 0 8rpx 24rpx rgba(255, 154, 139, 0.3);
+  transition: all 0.3s ease;
+}
+
+.auth-btn::after {
+  border: none;
+}
+
+.auth-btn-hover {
+  background: #FF8A7A;
+  transform: translateY(-2rpx);
+  box-shadow: 0 12rpx 32rpx rgba(255, 154, 139, 0.4);
+}
+
+/* 跳过按钮 */
+.skip-btn {
+  font-size: 28rpx;
+  color: #8A8A8A;
+  padding: 24rpx 48rpx;
+  margin-bottom: 60rpx;
+  border-radius: 40rpx;
+  border: 2rpx solid #E0E0E0;
+  transition: all 0.3s ease;
+}
+
+.skip-btn:active {
+  background: rgba(224, 224, 224, 0.1);
+  transform: scale(0.98);
+}
+
+/* 协议说明 */
+.agreement {
+  font-size: 24rpx;
+  color: #B8B8B8;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.link {
+  color: #FF9A8B;
+}
+
+/* 加载动画 */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40rpx;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #8A8A8A;
+  margin-top: 20rpx;
+  animation: fadeInOut 1.5s infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}

@@ -1,0 +1,689 @@
+/* diary/index.wxss */
+
+.diary-container {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #FFF9F5;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* 顶部导航栏 */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+  padding-bottom: 8rpx;
+  background: #FFF9F5;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-left {
+  flex: 1;
+}
+
+.navbar-title {
+  font-size: 36rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+  letter-spacing: 2rpx;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.navbar-icon {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 20rpx;
+  background: rgba(255, 154, 139, 0.1);
+  border-radius: 40rpx;
+  transition: all 0.3s ease;
+}
+
+.navbar-icon:active {
+  background: rgba(255, 154, 139, 0.2);
+  transform: scale(0.95);
+}
+
+.icon {
+  font-size: 32rpx;
+}
+
+.icon-text {
+  font-size: 24rpx;
+  color: #5A5A5A;
+  font-weight: 300;
+}
+
+.pet-name {
+  font-size: 24rpx;
+  color: #5A5A5A;
+  font-weight: 300;
+}
+
+/* 主要内容区域 */
+.main-content {
+  flex: 1;
+  height: calc(100vh - 140rpx);
+  padding: 0 32rpx;
+}
+
+/* 时间轴 */
+.timeline {
+  position: relative;
+  padding: 40rpx 0;
+}
+
+.timeline-item {
+  display: flex;
+  margin-bottom: 48rpx;
+  position: relative;
+}
+
+/* 时间轴节点 */
+.timeline-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 32rpx;
+  position: relative;
+}
+
+.node-dot {
+  width: 24rpx;
+  height: 24rpx;
+  background: #FF9A8B;
+  border-radius: 50%;
+  border: 4rpx solid white;
+  box-shadow: 0 4rpx 12rpx rgba(255, 154, 139, 0.3);
+  z-index: 2;
+}
+
+.node-line {
+  position: absolute;
+  top: 24rpx;
+  width: 2rpx;
+  height: calc(100% + 48rpx);
+  background: #E0E0E0;
+  z-index: 1;
+}
+
+/* 日记卡片 */
+.diary-card {
+  flex: 1;
+  display: flex;
+  background: white;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.05);
+}
+
+.diary-date {
+  width: 120rpx;
+  background: #FFF9F5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32rpx 0;
+}
+
+.date-day {
+  font-size: 48rpx;
+  font-weight: 300;
+  color: #FF9A8B;
+  line-height: 1;
+  margin-bottom: 8rpx;
+}
+
+.date-month {
+  font-size: 24rpx;
+  color: #8A8A8A;
+  font-weight: 300;
+  margin-bottom: 4rpx;
+}
+
+.date-week {
+  font-size: 20rpx;
+  color: #B8B8B8;
+  font-weight: 300;
+}
+
+.diary-content {
+  flex: 1;
+  padding: 32rpx;
+}
+
+.diary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24rpx;
+}
+
+.diary-title {
+  font-size: 32rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+  flex: 1;
+  margin-right: 24rpx;
+}
+
+.diary-mood {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80rpx;
+}
+
+.mood-icon {
+  font-size: 36rpx;
+  margin-bottom: 4rpx;
+}
+
+.mood-text {
+  font-size: 20rpx;
+  color: #8A8A8A;
+  font-weight: 300;
+}
+
+.diary-text {
+  font-size: 28rpx;
+  color: #5A5A5A;
+  line-height: 1.6;
+  margin-bottom: 24rpx;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+/* 图片预览 */
+.diary-images {
+  margin-bottom: 24rpx;
+}
+
+.images-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.images-container {
+  display: inline-flex;
+  gap: 16rpx;
+}
+
+.diary-image {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 16rpx;
+  background: #F0F0F0;
+}
+
+/* 操作按钮 */
+.diary-actions {
+  display: flex;
+  gap: 32rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx solid #F0F0F0;
+}
+
+.action-btn {
+  font-size: 24rpx;
+  color: #8A8A8A;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  background: #F0F0F0;
+  transition: all 0.3s ease;
+}
+
+.action-btn:active {
+  background: #E0E0E0;
+  color: #5A5A5A;
+}
+
+/* 加载更多 */
+.load-more {
+  display: flex;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+
+.load-text {
+  font-size: 28rpx;
+  color: #FF9A8B;
+  padding: 16rpx 48rpx;
+  border: 2rpx solid #FF9A8B;
+  border-radius: 40rpx;
+  transition: all 0.3s ease;
+}
+
+.load-text:active {
+  background: rgba(255, 154, 139, 0.1);
+}
+
+/* 底部空白区域 */
+.bottom-space {
+  height: 120rpx;
+}
+
+/* 写日记弹窗 */
+.diary-modal {
+  max-height: 90vh;
+}
+
+.diary-textarea {
+  width: 100%;
+  min-height: 240rpx;
+  padding: 24rpx;
+  background: #F0F0F0;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #5A5A5A;
+  border: 2rpx solid transparent;
+  box-sizing: border-box;
+  line-height: 1.6;
+}
+
+.diary-textarea:focus {
+  border-color: #FF9A8B;
+  background: white;
+}
+
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+}
+
+.mood-item {
+  padding: 20rpx 12rpx;
+  background: #F0F0F0;
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #5A5A5A;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.mood-item.selected {
+  background: #FF9A8B;
+  color: white;
+  border-color: #FF9A8B;
+}
+
+.image-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.image-thumb {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  overflow: visible;
+}
+
+.thumb-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  background: #F0F0F0;
+}
+
+.thumb-delete {
+  position: absolute;
+  top: -16rpx;
+  right: -16rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: white;
+  z-index: 10;
+}
+
+.image-add-btn {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  border: 2rpx dashed #E0E0E0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.image-add-btn:active {
+  border-color: #FF9A8B;
+  background: #FFF9F5;
+}
+
+.image-add-btn .add-icon {
+  font-size: 48rpx;
+  color: #FF9A8B;
+  line-height: 1;
+  margin-bottom: 8rpx;
+}
+
+.add-label {
+  font-size: 22rpx;
+  color: #8A8A8A;
+}
+
+.modal-footer {
+  display: flex;
+  padding: 32rpx;
+  border-top: 2rpx solid #F0F0F0;
+  gap: 24rpx;
+}
+
+.btn {
+  flex: 1;
+  padding: 28rpx;
+  text-align: center;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 300;
+}
+
+.btn-cancel {
+  background: #F0F0F0;
+  color: #8A8A8A;
+}
+
+.btn-primary {
+  background: #FF9A8B;
+  color: white;
+}
+
+.btn-primary:active {
+  background: #FF8A7A;
+}
+
+.form-section {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+  margin-bottom: 16rpx;
+}
+
+.form-input {
+  width: 100%;
+  padding: 24rpx;
+  background: #F0F0F0;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #5A5A5A;
+  border: 2rpx solid transparent;
+  box-sizing: border-box;
+}
+
+.diary-title-input {
+  min-height: 88rpx;
+  line-height: 40rpx;
+  padding-top: 24rpx;
+  padding-bottom: 24rpx;
+  font-size: 30rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  color: #FF9A8B;
+  margin-bottom: 40rpx;
+}
+
+.empty-title {
+  font-size: 36rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+  margin-bottom: 16rpx;
+}
+
+.empty-subtitle {
+  font-size: 28rpx;
+  color: #8A8A8A;
+  font-weight: 300;
+  margin-bottom: 60rpx;
+  text-align: center;
+}
+
+.empty-btn {
+  padding: 24rpx 64rpx;
+  background: #FF9A8B;
+  color: white;
+  border-radius: 50rpx;
+  font-size: 32rpx;
+  font-weight: 300;
+  box-shadow: 0 8rpx 24rpx rgba(255, 154, 139, 0.3);
+  transition: all 0.3s ease;
+}
+
+.empty-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 4rpx 12rpx rgba(255, 154, 139, 0.3);
+}
+
+/* 响应式修复：防止横向溢出 */
+.main-content {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  padding: 0 24rpx;
+}
+
+.timeline-item,
+.diary-card,
+.diary-content {
+  min-width: 0;
+}
+
+.diary-date {
+  width: 104rpx;
+  padding: 24rpx 0;
+  flex-shrink: 0;
+}
+
+.navbar-right {
+  gap: 12rpx;
+  min-width: 0;
+}
+
+.diary-title,
+.diary-text,
+.pet-name,
+.pet-details {
+  word-break: break-all;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 100%;
+  max-height: 70vh;
+  background: white;
+  border-radius: 32rpx 32rpx 0 0;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40rpx 32rpx 24rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 300;
+  color: #5A5A5A;
+}
+
+.modal-close {
+  font-size: 48rpx;
+  color: #8A8A8A;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.modal-close:active {
+  background: #F0F0F0;
+}
+
+.modal-body {
+  max-height: 50vh;
+  padding: 24rpx 32rpx;
+}
+
+.pet-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  margin-bottom: 16rpx;
+  transition: all 0.3s ease;
+  border: 2rpx solid transparent;
+}
+
+.pet-item.selected {
+  background: #2F2F2F;
+  border-color: #2F2F2F;
+}
+.pet-item.selected .pet-name,
+.pet-item.selected .pet-details,
+.pet-item.selected .pet-check {
+  color: #fff;
+}
+
+.pet-item:active {
+  background: #F0F0F0;
+}
+
+.pet-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: #FF9A8B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.pet-avatar-text {
+  font-size: 36rpx;
+  color: white;
+}
+
+.pet-info {
+  flex: 1;
+}
+
+.pet-name {
+  font-size: 28rpx;
+  color: #5A5A5A;
+  font-weight: 300;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.pet-details {
+  font-size: 22rpx;
+  color: #8A8A8A;
+  font-weight: 300;
+}
+
+.pet-check {
+  font-size: 32rpx;
+  color: #FF9A8B;
+  font-weight: bold;
+}
+
+.add-pet-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32rpx;
+  border: 2rpx dashed #E0E0E0;
+  border-radius: 20rpx;
+  margin-top: 16rpx;
+  transition: all 0.3s ease;
+}
+
+.add-pet-btn:active {
+  background: #F0F0F0;
+  border-color: #FF9A8B;
+}
+
+.add-icon {
+  font-size: 32rpx;
+  color: #FF9A8B;
+  margin-right: 16rpx;
+}
+
+.add-text {
+  font-size: 28rpx;
+  color: #5A5A5A;
+  font-weight: 300;
+}

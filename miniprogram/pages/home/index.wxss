@@ -227,6 +227,26 @@
   line-height: 1.7;
 }
 
+.ai-quick-focus {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  margin-top: 10rpx;
+}
+
+.ai-quick-title {
+  font-size: 22rpx;
+  color: #9A6E65;
+  font-weight: 600;
+}
+
+.ai-quick-text {
+  flex: 1;
+  font-size: 22rpx;
+  color: #7A6A66;
+  line-height: 1.6;
+}
+
 .ai-alert-head {
   display: flex;
   align-items: center;
@@ -284,6 +304,40 @@
   font-size: 28rpx;
   color: #5A5A5A;
   line-height: 1.8;
+}
+
+.insight-block {
+  margin-top: 18rpx;
+  padding-top: 14rpx;
+  border-top: 2rpx solid #F3ECEA;
+}
+
+.insight-title {
+  display: block;
+  font-size: 24rpx;
+  color: #7C6460;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  margin-bottom: 6rpx;
+}
+
+.insight-dot {
+  font-size: 22rpx;
+  color: #C97F72;
+  line-height: 1.6;
+}
+
+.insight-text {
+  flex: 1;
+  font-size: 22rpx;
+  color: #6E6160;
+  line-height: 1.7;
 }
 
 /* ── 记录卡片 ───────────────────────────── */
@@ -1000,4 +1054,43 @@
 .btn-primary:active {
   background: #FF8A7A;
   transform: scale(0.98);
+}
+
+/* 修复：弹窗右偏与按钮贴边（覆盖重复样式导致的宽度溢出） */
+.modal-overlay {
+  left: 0 !important;
+  right: 0 !important;
+  width: 100vw !important;
+}
+
+.modal-content {
+  width: 100% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+}
+
+.record-modal {
+  width: 100% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+}
+
+.modal-header,
+.modal-body,
+.modal-summary,
+.modal-footer,
+.btn {
+  box-sizing: border-box !important;
+}
+
+.modal-footer {
+  width: 100% !important;
+  gap: 16rpx !important;
+  padding-right: 24rpx !important;
+  padding-left: 24rpx !important;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom)) !important;
+}
+
+.btn {
+  min-width: 0;
 }

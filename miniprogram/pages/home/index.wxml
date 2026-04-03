@@ -34,9 +34,17 @@
         <view class="ai-summary-head">
           <text class="ai-badge">AI</text>
           <text class="ai-title">今日健康摘要</text>
-          <text class="ai-source-tag">来源：{{aiSummarySource==='ai'?'AI':'规则'}}</text>
+          <text class="ai-source-tag">来源：{{aiSummarySource==='ai'?'AI':'规则'}} | 置信度：{{aiConfidence==='high'?'高':(aiConfidence==='low'?'低':'中')}}</text>
         </view>
         <text class="ai-summary-text">{{aiDailySummary}}</text>
+        <view class="ai-quick-focus" wx:if="{{aiHighlights.length>0}}">
+          <text class="ai-quick-title">重点：</text>
+          <text class="ai-quick-text">{{aiHighlights[0].title}} {{aiHighlights[0].reason}}</text>
+        </view>
+        <view class="ai-quick-focus" wx:if="{{aiActions.length>0}}">
+          <text class="ai-quick-title">建议：</text>
+          <text class="ai-quick-text">{{aiActions[0]}}</text>
+        </view>
       </view>
       <view class="ai-alert-card">
         <view class="ai-alert-head">
@@ -63,10 +71,10 @@
         <view class="card-item" bindtap="recordMood"><view class="card-icon">😊</view><text class="card-title">情绪</text><text class="card-subtitle">{{recordSummaries.mood}}</text></view>
       </view></view>
       <view class="module-section"><view class="module-header"><text class="module-title">健康管理</text><text class="module-subtitle">Medical &amp; Care</text></view><view class="module-divider"></view><view class="cards-grid">
-        <view class="card-item" bindtap="recordVaccine"><view class="card-icon">💉</view><text class="card-title">疫苗</text><text class="card-subtitle">预防医疗</text></view>
-        <view class="card-item" bindtap="recordDeworming"><view class="card-icon">🐛</view><text class="card-title">驱虫</text><text class="card-subtitle">预防医疗</text></view>
-        <view class="card-item" bindtap="recordGrooming"><view class="card-icon">🛁</view><text class="card-title">护理</text><text class="card-subtitle">清洁美容</text></view>
-        <view class="card-item" bindtap="recordMedical"><view class="card-icon">🏥</view><text class="card-title">医疗</text><text class="card-subtitle">就诊用药</text></view>
+        <view class="card-item" bindtap="recordVaccine"><view class="card-icon">💉</view><text class="card-title">疫苗</text><text class="card-subtitle">{{recordSummaries.vaccine}}</text></view>
+        <view class="card-item" bindtap="recordDeworming"><view class="card-icon">🐛</view><text class="card-title">驱虫</text><text class="card-subtitle">{{recordSummaries.deworming}}</text></view>
+        <view class="card-item" bindtap="recordGrooming"><view class="card-icon">🛁</view><text class="card-title">护理</text><text class="card-subtitle">{{recordSummaries.grooming}}</text></view>
+        <view class="card-item" bindtap="recordMedical"><view class="card-icon">🏥</view><text class="card-title">医疗</text><text class="card-subtitle">{{recordSummaries.medical}}</text></view>
       </view></view>
     </view>
     <view class="bottom-space"></view>
@@ -79,6 +87,27 @@
       </view>
       <view class="modal-body">
         <text class="summary-detail-text">{{aiDailySummary}}</text>
+        <view class="insight-block" wx:if="{{aiHighlights.length>0}}">
+          <text class="insight-title">重点关注</text>
+          <view class="insight-item" wx:for="{{aiHighlights}}" wx:key="index">
+            <text class="insight-dot">•</text>
+            <text class="insight-text">{{item.title}}：{{item.reason}}（置信度{{item.confidence==='high'?'高':(item.confidence==='low'?'低':'中')}}）</text>
+          </view>
+        </view>
+        <view class="insight-block" wx:if="{{aiActions.length>0}}">
+          <text class="insight-title">行动建议</text>
+          <view class="insight-item" wx:for="{{aiActions}}" wx:key="index">
+            <text class="insight-dot">•</text>
+            <text class="insight-text">{{item}}</text>
+          </view>
+        </view>
+        <view class="insight-block" wx:if="{{aiPositives.length>0}}">
+          <text class="insight-title">积极信号</text>
+          <view class="insight-item" wx:for="{{aiPositives}}" wx:key="index">
+            <text class="insight-dot">•</text>
+            <text class="insight-text">{{item}}</text>
+          </view>
+        </view>
       </view>
     </view>
   </view>
@@ -128,6 +157,39 @@
   <view class="option-item {{moodData.mood==='胆小'?'selected':''}}" data-mood="胆小" bindtap="selectMood"><text>😨 胆小</text></view>
   <view class="option-item {{moodData.mood==='Emo'?'selected':''}}" data-mood="Emo" bindtap="selectMood"><text>😔 Emo</text></view>
   </view></view></view>
+  <view wx:if="{{recordModalType==='vaccine'}}"><view class="form-section"><text class="form-label">接种状态</text><view class="options-grid">
+  <view class="option-item {{vaccineData.status==='已接种'?'selected':''}}" data-status="已接种" bindtap="selectVaccineStatus"><text>已接种</text></view>
+  <view class="option-item {{vaccineData.status==='待接种'?'selected':''}}" data-status="待接种" bindtap="selectVaccineStatus"><text>待接种</text></view>
+  <view class="option-item {{vaccineData.status==='已预约'?'selected':''}}" data-status="已预约" bindtap="selectVaccineStatus"><text>已预约</text></view>
+  <view class="option-item {{vaccineData.status==='已超期'?'selected':''}}" data-status="已超期" bindtap="selectVaccineStatus"><text>已超期</text></view>
+  </view></view><view class="form-section"><text class="form-label">疫苗名称</text><input class="form-input" placeholder="如：狂犬、三联" value="{{vaccineData.vaccineName}}" bindinput="onVaccineNameInput"/></view><view class="form-section"><text class="form-label">下次接种日期</text><input class="form-input" placeholder="如：2026-06-18" value="{{vaccineData.nextDueDate}}" bindinput="onVaccineNextDateInput"/></view></view>
+  <view wx:if="{{recordModalType==='deworming'}}"><view class="form-section"><text class="form-label">驱虫类型</text><view class="options-grid">
+  <view class="option-item {{dewormingData.type==='体内驱虫'?'selected':''}}" data-type="体内驱虫" bindtap="selectDewormingType"><text>体内驱虫</text></view>
+  <view class="option-item {{dewormingData.type==='体外驱虫'?'selected':''}}" data-type="体外驱虫" bindtap="selectDewormingType"><text>体外驱虫</text></view>
+  <view class="option-item {{dewormingData.type==='内外同驱'?'selected':''}}" data-type="内外同驱" bindtap="selectDewormingType"><text>内外同驱</text></view>
+  </view></view><view class="form-section"><text class="form-label">执行状态</text><view class="options-grid">
+  <view class="option-item {{dewormingData.status==='已完成'?'selected':''}}" data-status="已完成" bindtap="selectDewormingStatus"><text>已完成</text></view>
+  <view class="option-item {{dewormingData.status==='待驱虫'?'selected':''}}" data-status="待驱虫" bindtap="selectDewormingStatus"><text>待驱虫</text></view>
+  <view class="option-item {{dewormingData.status==='已预约'?'selected':''}}" data-status="已预约" bindtap="selectDewormingStatus"><text>已预约</text></view>
+  <view class="option-item {{dewormingData.status==='已超期'?'selected':''}}" data-status="已超期" bindtap="selectDewormingStatus"><text>已超期</text></view>
+  </view></view><view class="form-section"><text class="form-label">下次驱虫日期</text><input class="form-input" placeholder="如：2026-05-20" value="{{dewormingData.nextDueDate}}" bindinput="onDewormingNextDateInput"/></view></view>
+  <view wx:if="{{recordModalType==='grooming'}}"><view class="form-section"><text class="form-label">护理项目</text><view class="options-grid">
+  <view class="option-item {{groomingData.item==='洗澡'?'selected':''}}" data-item="洗澡" bindtap="selectGroomingItem"><text>洗澡</text></view>
+  <view class="option-item {{groomingData.item==='修毛'?'selected':''}}" data-item="修毛" bindtap="selectGroomingItem"><text>修毛</text></view>
+  <view class="option-item {{groomingData.item==='修甲'?'selected':''}}" data-item="修甲" bindtap="selectGroomingItem"><text>修甲</text></view>
+  <view class="option-item {{groomingData.item==='耳道清洁'?'selected':''}}" data-item="耳道清洁" bindtap="selectGroomingItem"><text>耳道清洁</text></view>
+  <view class="option-item {{groomingData.item==='口腔清洁'?'selected':''}}" data-item="口腔清洁" bindtap="selectGroomingItem"><text>口腔清洁</text></view>
+  </view></view><view class="form-section"><text class="form-label">状态</text><view class="options-grid">
+  <view class="option-item {{groomingData.status==='已完成'?'selected':''}}" data-status="已完成" bindtap="selectGroomingStatus"><text>已完成</text></view>
+  <view class="option-item {{groomingData.status==='需安排'?'selected':''}}" data-status="需安排" bindtap="selectGroomingStatus"><text>需安排</text></view>
+  </view></view><view class="form-section"><text class="form-label">备注</text><input class="form-input" placeholder="可填写美容店、过敏反应等" value="{{groomingData.note}}" bindinput="onGroomingNoteInput"/></view></view>
+  <view wx:if="{{recordModalType==='medical'}}"><view class="form-section"><text class="form-label">医疗状态</text><view class="options-grid">
+  <view class="option-item {{medicalData.status==='观察中'?'selected':''}}" data-status="观察中" bindtap="selectMedicalStatus"><text>观察中</text></view>
+  <view class="option-item {{medicalData.status==='已就诊'?'selected':''}}" data-status="已就诊" bindtap="selectMedicalStatus"><text>已就诊</text></view>
+  <view class="option-item {{medicalData.status==='用药中'?'selected':''}}" data-status="用药中" bindtap="selectMedicalStatus"><text>用药中</text></view>
+  <view class="option-item {{medicalData.status==='需复诊'?'selected':''}}" data-status="需复诊" bindtap="selectMedicalStatus"><text>需复诊</text></view>
+  <view class="option-item {{medicalData.status==='已康复'?'selected':''}}" data-status="已康复" bindtap="selectMedicalStatus"><text>已康复</text></view>
+  </view></view><view class="form-section"><text class="form-label">症状/诊断</text><input class="form-input" placeholder="如：咳嗽、皮肤红点、肠胃不适" value="{{medicalData.symptom}}" bindinput="onMedicalSymptomInput"/></view><view class="form-section"><text class="form-label">处置/用药</text><input class="form-input" placeholder="如：口服药物，每日2次" value="{{medicalData.treatment}}" bindinput="onMedicalTreatmentInput"/></view></view>
   </scroll-view><view class="modal-footer"><view class="btn btn-cancel" bindtap="hideRecordModal">取消</view><view class="btn btn-primary" bindtap="saveRecord">保存</view></view></view></view>
   <view class="modal-overlay" wx:if="{{showPetModal}}" bindtap="hidePetModal"><view class="modal-content" catchtap="stopPropagation"><view class="modal-header"><text class="modal-title">选择宠物</text><text class="modal-close" bindtap="hidePetModal">×</text></view><scroll-view class="modal-body" scroll-y>
   <view class="pet-item {{currentPet&&pet._id===currentPet._id?'selected':''}}" wx:for="{{pets}}" wx:for-item="pet" wx:key="_id" data-index="{{index}}" data-pet="{{pet}}" bindtap="selectPet"><view class="pet-avatar"><text class="pet-avatar-text" wx:if="{{pet.avatar}}">{{pet.avatar}}</text><text class="pet-avatar-text" wx:else>🐾</text></view><view class="pet-info"><text class="pet-name">{{pet.name}}</text><text class="pet-details">{{pet.type}}·{{pet.breed}}</text></view><text class="pet-check" wx:if="{{currentPet&&pet._id===currentPet._id}}">✓</text></view>

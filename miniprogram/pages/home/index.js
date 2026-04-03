@@ -16,16 +16,22 @@ Page({
     calendarMonth: 0,
     todayRecord: {
       feeding: false, hydration: false, excretion: false,
-      activity: false, sleep: false, mood: false
+      activity: false, sleep: false, mood: false,
+      vaccine: false, deworming: false, grooming: false, medical: false
     },
     recordSummaries: {
       feeding: '未记录', hydration: '未记录', excretion: '未记录',
-      activity: '未记录', sleep: '未记录', mood: '未记录'
+      activity: '未记录', sleep: '未记录', mood: '未记录',
+      vaccine: '未记录', deworming: '未记录', grooming: '未记录', medical: '未记录'
     },
     aiDailySummary: '今日记录较少，继续记录可获得更完整健康摘要。',
     aiSummarySource: 'rule',
     alertSource: 'rule',
     dailyAlerts: [],
+    aiHighlights: [],
+    aiActions: [],
+    aiPositives: [],
+    aiConfidence: 'low',
     currentDailyRecord: {},
     showSummaryModal: false,
     showPetModal: false,
@@ -38,7 +44,11 @@ Page({
     excretionData: { poopStatus: '正常', peeStatus: '正常' },
     activityData: { duration: '', intensity: '散步' },
     sleepData: { duration: '', quality: '深睡' },
-    moodData: { mood: '开心' }
+    moodData: { mood: '开心' },
+    vaccineData: { status: '已接种', vaccineName: '', nextDueDate: '' },
+    dewormingData: { type: '内外同驱', status: '已完成', nextDueDate: '' },
+    groomingData: { item: '洗澡', status: '已完成', note: '' },
+    medicalData: { status: '观察中', symptom: '', treatment: '' }
   },
 
   _petChangeCallback: null,
@@ -155,7 +165,8 @@ Page({
     try {
       const r = wx.getStorageSync(key);
       if (!r) return false;
-      return ['feeding','hydration','excretion','activity','sleep','mood'].some(t => r[t] && Object.keys(r[t]).length > 0);
+      return ['feeding','hydration','excretion','activity','sleep','mood','vaccine','deworming','grooming','medical']
+        .some(t => r[t] && Object.keys(r[t]).length > 0);
     } catch (e) { return false; }
   },
 
@@ -197,32 +208,83 @@ Page({
   applyDailyRecord: function (record) {
     if (!record) {
       this.setData({
-        todayRecord: { feeding:false, hydration:false, excretion:false, activity:false, sleep:false, mood:false },
-        recordSummaries: { feeding:'未记录', hydration:'未记录', excretion:'未记录', activity:'未记录', sleep:'未记录', mood:'未记录' },
+        todayRecord: { feeding:false, hydration:false, excretion:false, activity:false, sleep:false, mood:false, vaccine:false, deworming:false, grooming:false, medical:false },
+        recordSummaries: {
+          feeding:'未记录', hydration:'未记录', excretion:'未记录', activity:'未记录', sleep:'未记录', mood:'未记录',
+          vaccine:'未记录', deworming:'未记录', grooming:'未记录', medical:'未记录'
+        },
         aiDailySummary: '今日记录较少，继续记录可获得更完整健康摘要。',
         aiSummarySource: 'rule',
         alertSource: 'rule',
         dailyAlerts: [],
+        aiHighlights: [],
+        aiActions: [],
+        aiPositives: [],
+        aiConfidence: 'low',
         currentDailyRecord: {}
       });
       return;
     }
+    const insights = this.normalizeInsights(record);
     this.setData({
       todayRecord: {
         feeding: !!record.feeding, hydration: !!record.hydration, excretion: !!record.excretion,
-        activity: !!record.activity, sleep: !!record.sleep, mood: !!record.mood
+        activity: !!record.activity, sleep: !!record.sleep, mood: !!record.mood,
+        vaccine: !!record.vaccine, deworming: !!record.deworming, grooming: !!record.grooming, medical: !!record.medical
       },
       recordSummaries: this.buildSummaries(record),
-      aiDailySummary: record.ai_summary || this.buildDailySummaryText(record),
+      aiDailySummary: insights.summary || record.ai_summary || this.buildDailySummaryText(record),
       aiSummarySource: record.ai_summary_source || 'rule',
       alertSource: record.alert_source || 'rule',
       dailyAlerts: record.alerts || this.buildDailyAlerts(record),
+      aiHighlights: insights.highlights,
+      aiActions: insights.actions,
+      aiPositives: insights.positives,
+      aiConfidence: insights.overallConfidence,
       currentDailyRecord: record
     });
   },
 
+  normalizeInsights: function (record) {
+    const raw = record && record.ai_insights && typeof record.ai_insights === 'object' ? record.ai_insights : null;
+    const fallbackSummary = record ? (record.ai_summary || this.buildDailySummaryText(record)) : this.data.aiDailySummary;
+    const fallbackAlerts = record ? (record.alerts || this.buildDailyAlerts(record)) : [];
+    const toList = (val, limit) => {
+      if (!Array.isArray(val)) return [];
+      return val
+        .filter((item) => typeof item === 'string')
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .slice(0, limit);
+    };
+    const highlights = Array.isArray(raw && raw.highlights)
+      ? raw.highlights
+          .filter((item) => item && typeof item === 'object')
+          .map((item) => ({
+            title: item.title || '健康关注',
+            reason: item.reason || item.title || '',
+            confidence: ['high', 'medium', 'low'].includes(item.confidence) ? item.confidence : 'medium'
+          }))
+          .filter((item) => item.title || item.reason)
+          .slice(0, 2)
+      : [];
+    const actions = toList(raw && raw.actions, 3);
+    const positives = toList(raw && raw.positives, 3);
+    return {
+      summary: (raw && raw.summary) || fallbackSummary,
+      alerts: toList(raw && raw.alerts, 5).length > 0 ? toList(raw && raw.alerts, 5) : fallbackAlerts,
+      highlights,
+      actions,
+      positives,
+      overallConfidence: ['high', 'medium', 'low'].includes(raw && raw.overallConfidence) ? raw.overallConfidence : 'medium'
+    };
+  },
+
   buildSummaries: function (r) {
-    const s = { feeding:'未记录', hydration:'未记录', excretion:'未记录', activity:'未记录', sleep:'未记录', mood:'未记录' };
+    const s = {
+      feeding:'未记录', hydration:'未记录', excretion:'未记录', activity:'未记录', sleep:'未记录', mood:'未记录',
+      vaccine:'未记录', deworming:'未记录', grooming:'未记录', medical:'未记录'
+    };
     if (r.feeding) { const f = r.feeding; s.feeding = f.type ? `${f.type}${f.amount ? ' '+f.amount+f.unit : ''}` : '已记录'; }
     if (r.hydration) s.hydration = r.hydration.status || '已记录';
     if (r.excretion) {
@@ -244,6 +306,24 @@ Page({
       s.sleep = parts.length > 0 ? parts.join(' ') : '已记录';
     }
     if (r.mood) s.mood = r.mood.mood || '已记录';
+    if (r.vaccine) {
+      const vc = r.vaccine;
+      const due = vc.nextDueDate ? ` 下次:${vc.nextDueDate}` : '';
+      s.vaccine = `${vc.status || '已记录'}${vc.vaccineName ? ` · ${vc.vaccineName}` : ''}${due}`;
+    }
+    if (r.deworming) {
+      const dw = r.deworming;
+      const due = dw.nextDueDate ? ` 下次:${dw.nextDueDate}` : '';
+      s.deworming = `${dw.status || '已记录'}${dw.type ? ` · ${dw.type}` : ''}${due}`;
+    }
+    if (r.grooming) {
+      const gr = r.grooming;
+      s.grooming = `${gr.status || '已记录'}${gr.item ? ` · ${gr.item}` : ''}`;
+    }
+    if (r.medical) {
+      const md = r.medical;
+      s.medical = `${md.status || '已记录'}${md.symptom ? ` · ${md.symptom}` : ''}`;
+    }
     return s;
   },
 
@@ -259,6 +339,10 @@ Page({
       parts.push(exParts.length > 0 ? `排泄${exParts.join('、')}` : '排泄正常');
     }
     if (record.mood) parts.push(`情绪${record.mood.mood || '稳定'}`);
+    if (record.vaccine) parts.push(`疫苗${record.vaccine.status || '已记录'}`);
+    if (record.deworming) parts.push(`驱虫${record.deworming.status || '已记录'}`);
+    if (record.grooming) parts.push(`护理${record.grooming.status || '已记录'}`);
+    if (record.medical) parts.push(`医疗${record.medical.status || '已记录'}`);
     if (parts.length === 0) return '今日记录较少，继续记录可获得更完整健康摘要。';
     return `今日健康摘要：${parts.join('，')}。`;
   },
@@ -267,6 +351,9 @@ Page({
     const alerts = [];
     if (record.hydration && record.hydration.status === '偏少') alerts.push('今日饮水偏少，建议注意补水。');
     if (record.excretion && record.excretion.poopStatus && record.excretion.poopStatus !== '正常') alerts.push('今日便便状态异常，建议持续观察。');
+    if (record.vaccine && (record.vaccine.status === '待接种' || record.vaccine.status === '已超期')) alerts.push('疫苗接种待完成，建议尽快安排。');
+    if (record.deworming && (record.deworming.status === '待驱虫' || record.deworming.status === '已超期')) alerts.push('驱虫计划待完成，建议尽快安排。');
+    if (record.medical && (record.medical.status === '观察中' || record.medical.status === '需复诊')) alerts.push('存在医疗关注项，请持续观察并按需复诊。');
     return alerts;
   },
 
@@ -281,6 +368,7 @@ Page({
         const refreshed = {
           ...mergedRecord,
           ai_summary: result.summary,
+          ai_insights: result.insights || mergedRecord.ai_insights || null,
           alerts: result.alerts || [],
           alert_level: result.alertLevel || 'normal',
           ai_summary_source: result.source || 'rule',
@@ -340,10 +428,10 @@ Page({
   recordActivity: function () { this.openModal('运动记录', 'activity'); },
   recordSleep: function () { this.openModal('睡眠记录', 'sleep'); },
   recordMood: function () { this.openModal('情绪记录', 'mood'); },
-  recordVaccine: function () { wx.showToast({ title: '疫苗记录功能开发中', icon: 'none' }); },
-  recordDeworming: function () { wx.showToast({ title: '驱虫记录功能开发中', icon: 'none' }); },
-  recordGrooming: function () { wx.showToast({ title: '护理记录功能开发中', icon: 'none' }); },
-  recordMedical: function () { wx.showToast({ title: '医疗记录功能开发中', icon: 'none' }); },
+  recordVaccine: function () { this.openModal('疫苗记录', 'vaccine'); },
+  recordDeworming: function () { this.openModal('驱虫记录', 'deworming'); },
+  recordGrooming: function () { this.openModal('护理记录', 'grooming'); },
+  recordMedical: function () { this.openModal('医疗记录', 'medical'); },
   quickRecord: function () { wx.showToast({ title: '请使用各模块卡片记录', icon: 'none' }); },
 
   openModal: function (title, type) {
@@ -371,6 +459,10 @@ Page({
       case 'activity':  typeData = this.data.activityData;  break;
       case 'sleep':     typeData = this.data.sleepData;     break;
       case 'mood':      typeData = this.data.moodData;      break;
+      case 'vaccine':   typeData = this.data.vaccineData;   break;
+      case 'deworming': typeData = this.data.dewormingData; break;
+      case 'grooming':  typeData = this.data.groomingData;  break;
+      case 'medical':   typeData = this.data.medicalData;   break;
       default: wx.showToast({ title: '该功能正在开发中', icon: 'none' }); return;
     }
     wx.showLoading({ title: '保存中...' });
@@ -409,6 +501,14 @@ Page({
           wx.hideLoading();
           merged.ai_summary = that.buildDailySummaryText(merged);
           merged.alerts = that.buildDailyAlerts(merged);
+          merged.ai_insights = {
+            summary: merged.ai_summary,
+            highlights: [],
+            actions: [],
+            positives: [],
+            alerts: merged.alerts,
+            overallConfidence: 'low'
+          };
           merged.alert_level = merged.alerts.length > 0 ? 'warning' : 'normal';
           merged.ai_summary_source = 'rule';
           merged.alert_source = 'rule';
@@ -423,6 +523,14 @@ Page({
           wx.hideLoading();
           merged.ai_summary = that.buildDailySummaryText(merged);
           merged.alerts = that.buildDailyAlerts(merged);
+          merged.ai_insights = {
+            summary: merged.ai_summary,
+            highlights: [],
+            actions: [],
+            positives: [],
+            alerts: merged.alerts,
+            overallConfidence: 'low'
+          };
           merged.alert_level = merged.alerts.length > 0 ? 'warning' : 'normal';
           merged.ai_summary_source = 'rule';
           merged.alert_source = 'rule';
@@ -456,6 +564,18 @@ Page({
   onSleepDurationInput: function (e) { this.setData({ 'sleepData.duration': e.detail.value }); },
   selectSleepQuality: function (e) { this.setData({ 'sleepData.quality': e.currentTarget.dataset.quality }); },
   selectMood: function (e) { this.setData({ 'moodData.mood': e.currentTarget.dataset.mood }); },
+  selectVaccineStatus: function (e) { this.setData({ 'vaccineData.status': e.currentTarget.dataset.status }); },
+  onVaccineNameInput: function (e) { this.setData({ 'vaccineData.vaccineName': e.detail.value }); },
+  onVaccineNextDateInput: function (e) { this.setData({ 'vaccineData.nextDueDate': e.detail.value }); },
+  selectDewormingType: function (e) { this.setData({ 'dewormingData.type': e.currentTarget.dataset.type }); },
+  selectDewormingStatus: function (e) { this.setData({ 'dewormingData.status': e.currentTarget.dataset.status }); },
+  onDewormingNextDateInput: function (e) { this.setData({ 'dewormingData.nextDueDate': e.detail.value }); },
+  selectGroomingItem: function (e) { this.setData({ 'groomingData.item': e.currentTarget.dataset.item }); },
+  selectGroomingStatus: function (e) { this.setData({ 'groomingData.status': e.currentTarget.dataset.status }); },
+  onGroomingNoteInput: function (e) { this.setData({ 'groomingData.note': e.detail.value }); },
+  selectMedicalStatus: function (e) { this.setData({ 'medicalData.status': e.currentTarget.dataset.status }); },
+  onMedicalSymptomInput: function (e) { this.setData({ 'medicalData.symptom': e.detail.value }); },
+  onMedicalTreatmentInput: function (e) { this.setData({ 'medicalData.treatment': e.detail.value }); },
 
   onShareAppMessage: function () {
     return { title: '宠物日常记录 - 记录每一刻的温暖', path: '/pages/home/index' };

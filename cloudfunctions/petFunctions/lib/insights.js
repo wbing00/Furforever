@@ -1,4 +1,4 @@
-const https = require("https");
+﻿const https = require("https");
 const { cloud, db } = require("./runtime");
 const {
   DEFAULT_SUMMARY,
@@ -13,6 +13,8 @@ const {
   mergeUniqueAlerts,
   safeParseJsonFromText,
 } = require("./utils");
+
+const CONFIDENCE_LEVELS = ["high", "medium", "low"];
 
 const buildDailySummaryText = (record) => {
   const parts = [];
@@ -72,7 +74,7 @@ const buildDailySummaryText = (record) => {
   return `今日健康摘要：${parts.join("；")}。`;
 };
 
-const callDoubaoApi = (payload, timeoutMs = 12000) =>
+const callDoubaoApi = (payload, timeoutMs = 20000) =>
   new Promise((resolve, reject) => {
     const urlObj = new URL(DOUBAO_API_URL);
     const req = https.request(
@@ -115,6 +117,17 @@ const callDoubaoApi = (payload, timeoutMs = 12000) =>
     req.end();
   });
 
+const parseNumber = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+};
+
+const average = (nums) => {
+  const list = nums.filter((n) => Number.isFinite(n));
+  if (list.length === 0) return null;
+  return Number((list.reduce((sum, n) => sum + n, 0) / list.length).toFixed(1));
+};
+
 const buildAiInputFromRecord = (record) => ({
   feeding: record.feeding
     ? {
@@ -151,48 +164,209 @@ const buildAiInputFromRecord = (record) => ({
         mood: normalizeText(record.mood.mood),
       }
     : null,
+  vaccine: record.vaccine || null,
+  deworming: record.deworming || null,
+  grooming: record.grooming || null,
+  medical: record.medical || null,
 });
 
-const parseAiResult = (content) => {
+const buildPetProfile = (pet) => {
+  if (!pet) return null;
+  return {
+    name: normalizeText(pet.name, "宠物"),
+    type: normalizeText(pet.type, "未知"),
+    breed: normalizeText(pet.breed, "未知"),
+    weightKg: parseNumber(pet.weight),
+    birthday: normalizeText(pet.birthday, ""),
+    gender: normalizeText(pet.gender, ""),
+  };
+};
+
+const buildTrendContext = (records, date) => {
+  const hydrationLowDays = records.filter(
+    (r) => r && r.hydration && r.hydration.status === "偏少"
+  ).length;
+  const poopAbnormalDays = records.filter(
+    (r) => r && r.excretion && r.excretion.poopStatus && r.excretion.poopStatus !== "正常"
+  ).length;
+
+  const activityMinutes = records
+    .map((r) => (r && r.activity ? parseNumber(r.activity.duration) : null))
+    .filter((v) => v !== null);
+
+  const sleepHours = records
+    .map((r) => (r && r.sleep ? parseNumber(r.sleep.duration) : null))
+    .filter((v) => v !== null);
+
+  const medicalAttentionDays = records.filter(
+    (r) =>
+      r &&
+      r.medical &&
+      ["观察中", "需复诊", "用药中"].includes(normalizeText(r.medical.status, ""))
+  ).length;
+
+  const riskDays = records.filter((r) => {
+    if (!r) return false;
+    const hydrationRisk = r.hydration && r.hydration.status === "偏少";
+    const poopRisk = r.excretion && r.excretion.poopStatus && r.excretion.poopStatus !== "正常";
+    const vaccineRisk =
+      r.vaccine && ["待接种", "已超期"].includes(normalizeText(r.vaccine.status, ""));
+    const dewormingRisk =
+      r.deworming && ["待驱虫", "已超期"].includes(normalizeText(r.deworming.status, ""));
+    const medicalRisk =
+      r.medical && ["观察中", "需复诊", "用药中"].includes(normalizeText(r.medical.status, ""));
+    return hydrationRisk || poopRisk || vaccineRisk || dewormingRisk || medicalRisk;
+  }).length;
+
+  return {
+    targetDate: date,
+    daysCovered: records.length,
+    hydrationLowDays,
+    poopAbnormalDays,
+    activityAvgMinutes: average(activityMinutes),
+    sleepAvgHours: average(sleepHours),
+    medicalAttentionDays,
+    riskDays,
+  };
+};
+
+const sanitizeStringList = (value, limit = 3) => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((v) => typeof v === "string")
+    .map((v) => v.trim())
+    .filter(Boolean)
+    .slice(0, limit);
+};
+
+const sanitizeHighlights = (value) => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item) => item && typeof item === "object")
+    .map((item) => {
+      const title = normalizeText(item.title, "");
+      const reason = normalizeText(item.reason, "");
+      const confidence = CONFIDENCE_LEVELS.includes(item.confidence) ? item.confidence : "medium";
+      if (!title && !reason) return null;
+      return {
+        title: title || "健康关注",
+        reason: reason || title,
+        confidence,
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 2);
+};
+
+const normalizeConfidence = (value) => (CONFIDENCE_LEVELS.includes(value) ? value : "medium");
+
+const buildRuleInsights = (record, ruleAlerts, trendContext) => {
+  const summary = buildDailySummaryText(record);
+
+  const highlights = [];
+  if (ruleAlerts.length > 0) {
+    highlights.push({
+      title: "优先关注异常信号",
+      reason: ruleAlerts[0],
+      confidence: "high",
+    });
+  } else if (trendContext.riskDays > 0) {
+    highlights.push({
+      title: "近期有轻微波动",
+      reason: `最近${trendContext.daysCovered}天中有${trendContext.riskDays}天出现需关注信号。`,
+      confidence: "medium",
+    });
+  }
+
+  const actions = [];
+  if (record.hydration && record.hydration.status === "偏少") {
+    actions.push("今晚可增加一次湿粮或分次引导饮水，明早复查饮水状态。");
+  }
+  if (record.medical && ["观察中", "需复诊"].includes(normalizeText(record.medical.status, ""))) {
+    actions.push("保留症状变化记录，若持续或加重请按计划复诊。");
+  }
+  if (actions.length === 0) {
+    actions.push("保持当前节奏，明日继续完整记录饮食、饮水、排泄和活动。", "若出现突发精神萎靡或食欲下降，优先记录并及时复评。");
+  }
+
+  const positives = [];
+  if (record.sleep && normalizeText(record.sleep.quality, "") === "深睡") positives.push("睡眠质量表现稳定。");
+  if (record.mood && normalizeText(record.mood.mood, "") === "开心") positives.push("情绪状态积极。");
+
+  return {
+    summary,
+    highlights: highlights.slice(0, 2),
+    actions: actions.slice(0, 3),
+    positives: positives.slice(0, 2),
+    alerts: ruleAlerts,
+    overallConfidence: "medium",
+  };
+};
+
+const parseAiResult = (content, fallbackInsights) => {
   const parsed = safeParseJsonFromText(content);
-  if (!parsed || typeof parsed.summary !== "string") {
+  if (!parsed) {
     throw new Error("doubao output invalid");
   }
 
-  const summary = parsed.summary.trim();
-  if (!summary) {
-    throw new Error("doubao summary empty");
-  }
-
+  const summary = normalizeText(parsed.summary, "").trim() || fallbackInsights.summary;
   const alerts = sanitizeAlerts(parsed.alerts);
-  const alertLevel = parsed.alertLevel === "warning" || alerts.length > 0 ? "warning" : "normal";
+  const highlights = sanitizeHighlights(parsed.highlights);
+  const actions = sanitizeStringList(parsed.actions, 3);
+  const positives = sanitizeStringList(parsed.positives, 3);
 
-  return { summary, alerts, alertLevel };
+  return {
+    summary,
+    alerts,
+    alertLevel: parsed.alertLevel === "warning" || alerts.length > 0 ? "warning" : "normal",
+    highlights,
+    actions,
+    positives,
+    overallConfidence: normalizeConfidence(parsed.overallConfidence),
+  };
 };
 
-const generateAiSummaryByDoubao = async (record) => {
+const generateAiSummaryByDoubao = async (record, trendContext, petProfile, fallbackInsights) => {
   if (!DOUBAO_API_KEY || !DOUBAO_MODEL) {
     throw new Error("doubao env missing: DOUBAO_API_KEY / DOUBAO_MODEL");
   }
 
   const promptData = buildAiInputFromRecord(record);
-  console.log("[AI] prompt data:", JSON.stringify(promptData, null, 2));
+  const aiContext = {
+    petProfile,
+    todayRecord: promptData,
+    trend: trendContext,
+  };
 
-  const detailedPrompt = `你是一个专业、克制、温和的宠物健康记录助手。请根据以下宠物当日记录生成健康摘要。
-【记录数据】${JSON.stringify(promptData, null, 2)}
+  console.log("[AI] insight context:", JSON.stringify(aiContext, null, 2));
 
-【任务要求】1. 优先覆盖所有已记录项目，包括饮食、饮水、排泄、活动、睡眠、情绪。2. 即使某项存在异常，也不要只盯着异常，要给出完整概括。3. 只描述已记录内容，不要反复提“未记录”。4. 摘要语气自然，像宠物主人的健康日报，不要夸张。5. 如果存在需要关注的问题，再放入 alerts 数组；没有异常则返回空数组。
-【输出格式】请只输出 JSON，不要附加解释：
+  const detailedPrompt = `你是宠物健康管理助手，需要输出“有优先级、可执行”的建议，不要平均复述字段。
+
+【输入数据】\n${JSON.stringify(aiContext, null, 2)}
+
+【输出目标】
+1. 先给一句结论（summary），突出今天最关键变化。
+2. highlights 最多2条，每条包含 title/reason/confidence(high|medium|low)，按风险优先级排序。
+3. actions 给出1-3条可执行动作，要求有时间或操作细节。
+4. positives 提炼1-2条积极表现，避免全是风险。
+5. alerts 只放真正需要关注的问题，不要泛泛提醒。
+6. 允许不覆盖所有字段，重点优先；但不能捏造。
+
+【输出格式】仅输出合法 JSON：
 {
-  "summary": "80-150字的自然中文摘要",
-  "alerts": ["需要关注的异常提醒"],
-  "alertLevel": "normal or warning"
+  "summary": "40-90字结论",
+  "highlights": [{"title":"...","reason":"...","confidence":"high"}],
+  "actions": ["..."],
+  "positives": ["..."],
+  "alerts": ["..."],
+  "alertLevel": "normal or warning",
+  "overallConfidence": "high or medium or low"
 }`;
 
   const payload = {
     model: DOUBAO_MODEL,
-    temperature: 0.3,
-    max_tokens: 500,
+    temperature: 0.25,
+    max_tokens: 700,
     response_format: {
       type: "json_object",
     },
@@ -200,7 +374,7 @@ const generateAiSummaryByDoubao = async (record) => {
       {
         role: "system",
         content:
-          "你负责生成宠物健康摘要。输出必须是合法 JSON，内容要完整覆盖记录项，避免遗漏，避免只强调单一异常。",
+          "你负责生成宠物健康洞察。输出必须是合法 JSON；优先给风险排序、趋势判断、可执行建议。",
       },
       {
         role: "user",
@@ -219,7 +393,7 @@ const generateAiSummaryByDoubao = async (record) => {
       ? apiData.choices[0].message.content
       : "";
 
-  return parseAiResult(content);
+  return parseAiResult(content, fallbackInsights);
 };
 
 const buildRuleAlerts = (day1, day2) => {
@@ -268,6 +442,14 @@ const generateDailyInsights = async (event) => {
 
     const currentRecord = currentResult.data[0];
     if (!currentRecord) {
+      const emptyInsights = {
+        summary: DEFAULT_SUMMARY,
+        highlights: [],
+        actions: [],
+        positives: [],
+        alerts: [],
+        overallConfidence: "low",
+      };
       return {
         success: true,
         data: {
@@ -276,18 +458,14 @@ const generateDailyInsights = async (event) => {
           alertLevel: "normal",
           source: "rule",
           alertSource: "rule",
+          insights: emptyInsights,
         },
       };
     }
 
-    let summary = buildDailySummaryText(currentRecord);
-    let summarySource = "rule";
-    let aiAlerts = [];
-    let aiAlertLevel = "normal";
-    let aiSucceeded = false;
-
     const currentDate = new Date(`${date}T00:00:00`);
     const prevDate = formatDate(new Date(currentDate.getTime() - 24 * 60 * 60 * 1000));
+    const trendStartDate = formatDate(new Date(currentDate.getTime() - 6 * 24 * 60 * 60 * 1000));
 
     const twoDaysResult = await db
       .collection("pets_daily_records")
@@ -299,36 +477,78 @@ const generateDailyInsights = async (event) => {
       .orderBy("date", "asc")
       .get();
 
+    const recentDaysResult = await db
+      .collection("pets_daily_records")
+      .where({
+        pet_id,
+        owner_openid: wxContext.OPENID,
+        date: db.command.gte(trendStartDate).and(db.command.lte(date)),
+      })
+      .orderBy("date", "asc")
+      .get();
+
+    const petResult = await db
+      .collection("pets")
+      .where({
+        _id: pet_id,
+        owner_openid: wxContext.OPENID,
+      })
+      .get();
+
+    const petProfile = buildPetProfile(petResult.data[0]);
+    const trendContext = buildTrendContext(recentDaysResult.data || [], date);
+
     const byDate = {};
     twoDaysResult.data.forEach((item) => {
       byDate[item.date] = item;
     });
 
     const ruleAlerts = buildRuleAlerts(byDate[prevDate], byDate[date]);
+    const fallbackInsights = buildRuleInsights(currentRecord, ruleAlerts, trendContext);
+
+    let summary = fallbackInsights.summary;
+    let summarySource = "rule";
+    let aiSucceeded = false;
+    let aiErrorMsg = "";
+    let aiResult = {
+      ...fallbackInsights,
+      alertLevel: ruleAlerts.length > 0 ? "warning" : "normal",
+    };
 
     try {
-      const aiResult = await generateAiSummaryByDoubao(currentRecord);
+      aiResult = await generateAiSummaryByDoubao(currentRecord, trendContext, petProfile, fallbackInsights);
       summary = aiResult.summary || summary;
-      aiAlerts = aiResult.alerts || [];
-      aiAlertLevel = aiResult.alertLevel || "normal";
       summarySource = "ai";
       aiSucceeded = true;
     } catch (aiErr) {
+      aiErrorMsg = aiErr && aiErr.message ? aiErr.message : String(aiErr || "");
       console.warn(
         "[AI] generateAiSummaryByDoubao fallback to rule:",
-        aiErr && aiErr.message ? aiErr.message : aiErr
+        aiErrorMsg
       );
     }
 
-    const alerts = mergeUniqueAlerts(ruleAlerts, aiAlerts);
-    const alertLevel = alerts.length > 0 || aiAlertLevel === "warning" ? "warning" : "normal";
+    const alerts = mergeUniqueAlerts(ruleAlerts, aiResult.alerts || []);
+    const alertLevel = alerts.length > 0 || aiResult.alertLevel === "warning" ? "warning" : "normal";
     const alertSource = aiSucceeded ? (ruleAlerts.length > 0 ? "ai+rule" : "ai") : "rule";
+
+    const insights = {
+      summary,
+      highlights: aiResult.highlights || fallbackInsights.highlights || [],
+      actions: aiResult.actions || fallbackInsights.actions || [],
+      positives: aiResult.positives || fallbackInsights.positives || [],
+      alerts,
+      overallConfidence: aiResult.overallConfidence || "medium",
+      trend: trendContext,
+    };
 
     await db.collection("pets_daily_records").doc(currentRecord._id).update({
       data: {
         ai_summary: summary,
         ai_summary_source: summarySource,
         ai_summary_updated_at: new Date(),
+        ai_insights: insights,
+        ai_error: aiErrorMsg || "",
         alerts,
         alert_level: alertLevel,
         alert_source: alertSource,
@@ -344,6 +564,14 @@ const generateDailyInsights = async (event) => {
         alertLevel,
         source: summarySource,
         alertSource,
+        insights,
+        aiDebug: {
+          succeeded: aiSucceeded,
+          error: aiErrorMsg || "",
+          hasApiKey: !!DOUBAO_API_KEY,
+          hasModel: !!DOUBAO_MODEL,
+          timeoutMs: 20000,
+        },
       },
     };
   } catch (e) {
